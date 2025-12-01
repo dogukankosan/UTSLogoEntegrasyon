@@ -3,31 +3,54 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using DevExpress.Utils;
 using DevExpress.XtraEditors;
-using DevExpress.XtraGrid.Views.Grid; // GridView için gerekli olabilir
+using DevExpress.XtraGrid.Views.Grid;
+using DevExpress.XtraGrid.Views.Grid.ViewInfo;
 using UTSLogo.Classes;
 using UTSLogo.Models;
 
 namespace UTSLogo.Forms
 {
-    // Varsayım: Bu formun görsel bileşenleri (gridControl1, gridView1, refreshToolStripMenuItem, UTSToolStripMenuItem) tasarlanmıştır.
     public partial class SalesInvoicesForm : XtraForm
     {
-        private string _userName = "";
-        private string _firmaNr = "";
-        private string _periodNo = "";
+        private string _userName;
+        private string _firmaNr;
+        private string _periodNo;
 
-        // --- Constructor ---
         public SalesInvoicesForm(string userName, string firmaNr, string periodNo)
         {
             InitializeComponent();
             _userName = userName;
             _firmaNr = firmaNr;
             _periodNo = periodNo;
+            this.gridView1.DoubleClick += new System.EventHandler(this.gridView1_DoubleClick);
         }
+        // SalesInvoicesForm.cs içinde olması gereken örnek metot
+        private void gridView1_DoubleClick(object sender, EventArgs e)
+        {
+            DXMouseEventArgs args = e as DXMouseEventArgs;
+            GridView view = sender as GridView;
+            GridHitInfo hitInfo = view.CalcHitInfo(args.Location);
 
-        // --- Event Handlers ---
+            if (hitInfo.InRow || hitInfo.InRowCell)
+            {
+                // 1. LogicalRef'i al
+                var logicalRef = view.GetFocusedRowCellValue("LOGICALREF")?.ToString();
 
+                if (!string.IsNullOrEmpty(logicalRef))
+                {
+                    // 2. Yeni formu aç (Bu constructor'ı kullandık)
+                    SalesDetailsForm detailForm = new SalesDetailsForm(
+                        logicalRef,
+                        _userName,
+                        _firmaNr,
+                        _periodNo // Ana formdaki field'ları kullanarak bilgileri gönder
+                    );
+                    detailForm.ShowDialog();
+                }
+            }
+        }
         private async void SalesInvoicesForm_Load(object sender, EventArgs e)
         {
             await LoadSalesInvoicesAsync();
@@ -38,262 +61,429 @@ namespace UTSLogo.Forms
             await LoadSalesInvoicesAsync();
         }
 
-        private void gridView1_DoubleClick(object sender, EventArgs e)
-        {
-            if (gridView1.GetFocusedRow() == null) return;
-            var logicalRef = gridView1.GetFocusedRowCellValue("LOGICALREF")?.ToString();
-            if (string.IsNullOrEmpty(logicalRef)) return;
-
-            // SalesDetailsForm'un LOGICALREF'i kabul ettiğini varsayıyoruz.
-            // SalesDetailsForm detailsForm = new SalesDetailsForm(logicalRef);
-            // detailsForm.ShowDialog();
-        }
-
         private async void UTSToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (gridView1.GetFocusedRow() == null)
             {
-                XtraMessageBox.Show("Lütfen öncelikle listeden bir fatura seçiniz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                XtraMessageBox.Show("Lütfen bir fatura seçiniz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-
             var logicalRef = gridView1.GetFocusedRowCellValue("LOGICALREF")?.ToString();
-            if (string.IsNullOrEmpty(logicalRef))
+            var faturaNo = gridView1.GetFocusedRowCellValue("Fatura No")?.ToString();
+            var faturaTarihi = gridView1.GetFocusedRowCellValue("Fatura Tarihi")?.ToString();
+            if (string.IsNullOrEmpty(logicalRef)) return;
+            string utsDurumu = gridView1.GetFocusedRowCellValue("UTS Durumu")?.ToString();
+            if (utsDurumu == "✓ Çekildi")
             {
-                XtraMessageBox.Show("Seçili faturanın LOGICALREF bilgisine ulaşılamadı.", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                var result = XtraMessageBox.Show(
+                    $"Bu fatura daha önce UTS'den çekilmiş.\n\nTekrar çekmek istiyor musunuz?",
+                    "Uyarı",
+                    MessageBoxButtons.YesNo,
+                    MessageBoxIcon.Question);
+
+                if (result != DialogResult.Yes)
+                    return;
             }
-
-            // İşlemi asenkron olarak başlat
-            await CheckAndCallUtsForInvoiceAsync(logicalRef);
+            await CheckAndCallUtsForInvoiceAsync(logicalRef, faturaNo, faturaTarihi);
+            await LoadSalesInvoicesAsync();
         }
-
-        // --- Core Methods ---
-
-        /// <summary>
-        /// Ana Fatura Listesini SQL Server'dan çeker ve GridControl'e bağlar.
-        /// </summary>
         private async Task LoadSalesInvoicesAsync()
         {
             try
             {
-                // Kullanıcı ve firma/dönem bilgileri zaten Constructor'da set edildiği için sadece formatlayalım
-                string firmaFilter = _firmaNr.PadLeft(3, '0');
-                string periodFilter = _periodNo.PadLeft(2, '0');
+                string firma = _firmaNr.PadLeft(3, '0');
+                string period = _periodNo.PadLeft(2, '0');
+                DataTable utsKayitlar = await GetUtsCekilmisFaturalarAsync();
+                HashSet<string> cekilmisFaturalar = new HashSet<string>();
 
-                // SQL Server sorgusu (Daha önce paylaştığınız sorgunun başlık kısmı)
+                if (utsKayitlar != null && utsKayitlar.Rows.Count > 0)
+                {
+                    foreach (DataRow row in utsKayitlar.Rows)
+                    {
+                        string invRef = row["INVOICEREF"]?.ToString();
+                        if (!string.IsNullOrEmpty(invRef))
+                            cekilmisFaturalar.Add(invRef);
+                    }
+                }
+
                 string query = $@"
-                    SELECT 
-                        CASE INV.ESTATUS
-                            WHEN 0 THEN 'GİB’e Gönderilecek'
-                            WHEN 1 THEN 'Onay Gönderildi'
-                            WHEN 2 THEN 'Onaylandı'
-                            WHEN 3 THEN 'Paketlendi'
-                            ELSE 'Diğer Durumlar'
-                        END AS [Durum],
-                        INV.LOGICALREF,
-                        CONVERT(VARCHAR(20), INV.DATE_, 104) AS [Fatura Tarihi],
-                        INV.FICHENO AS [Fatura No],
-                        CL.CODE AS [Cari Kodu],
-                        CL.DEFINITION_ AS [Cari Adı],
-                        INV.NETTOTAL AS [TL Tutarı],
-                        INV.TRNET AS [Döviz Tutarı],
-                        CASE WHEN CURR.CURCODE IS NULL THEN 'TL' ELSE CURR.CURCODE END AS [Döviz Türü],
-                        USERS.NAME AS [Kaydı Yapan]
-                    FROM LG_{firmaFilter}_{periodFilter}_INVOICE INV WITH (NOLOCK)
-                    LEFT JOIN LG_{firmaFilter}_CLCARD CL WITH (NOLOCK) ON CL.LOGICALREF = INV.CLIENTREF
-                    LEFT JOIN L_CURRENCYLIST CURR WITH (NOLOCK) ON CURR.CURTYPE = INV.TRCURR AND CURR.FIRMNR = {firmaFilter}
-                    JOIN L_CAPIUSER USERS WITH (NOLOCK) ON USERS.NR = INV.CAPIBLOCK_CREATEDBY 
-                    WHERE INV.TRCODE IN (7,8,9) -- Belirlenen Satış Fatura Tipleri
-                      AND INV.CANCELLED=0
-                      AND INV.ESTATUS IN (0, 1, 2, 3)
-                    ORDER BY INV.LOGICALREF DESC";
+                  SELECT  
+    -- Fatura Tipini Belirleme
+    CASE 
+        WHEN INV.EINVOICE = 1 THEN 'E-Fatura'
+        WHEN INV.EINVOICE = 2 THEN 'E-Arşiv'
+        ELSE 'Diğer'
+    END AS [FaturaTipi],
 
-                // SQLCrud sınıfının GetDataTableAsync metodu üzerinden veri çekilir (varsayım)
-                DataTable dtInvoices = await SQLCrud.GetDataTableAsync(query, null);
+    -- Durum Alanını Belirleme (E-Fatura ve E-Arşiv için farklı mantık)
+    CASE 
+        -- E-Arşiv Fatura (INV.EINVOICE = 2) için EAR.EARCHIVESTATUS'a göre durum
+        WHEN INV.EINVOICE = 2 THEN
+            CASE EAR.EARCHIVESTATUS
+                WHEN 0 THEN 'GİB Gönderilecek'
+                WHEN 1 THEN 'Onaylandı'
+                ELSE 'Bilinmiyor (E-Arşiv)'
+            END
+        -- E-Fatura (INV.EINVOICE = 1) için INV.ESTATUS'a göre durum (Orijinal sorgudan INV.EINVOICE=1 durumunda ESTATUS kullanıldığı anlaşılıyor, ancak burada ESTATUS yerine E-Fatura için genel EINVOICE durumları kullanıldı.)
+        WHEN INV.EINVOICE = 1 THEN
+            CASE INV.ESTATUS -- Normalde ESTATUS kullanılmalı, ancak orijinal sorgunuzdaki CASE yapısı INV.EINVOICE'i kullanmış. E-Fatura için ESTATUS'ü tercih etmek daha doğrudur.
+                WHEN 0 THEN 'GİB''e Gönderilecek'
+                WHEN 1 THEN 'Onay Gönderildi'
+                WHEN 2 THEN 'Onaylandı'
+                WHEN 3 THEN 'Paketlendi'
+                ELSE 'Bilinmiyor (E-Fatura)'
+            END
+        ELSE 'Bilinmiyor'
+    END AS [Durum],
+    INV.LOGICALREF,
+    INV.DATE_ AS [FaturaTarihiRaw],
+    CONVERT(VARCHAR(20), INV.DATE_, 104) AS [Fatura Tarihi],
+    INV.FICHENO AS [Fatura No],
+    CL.CODE AS [Cari Kodu],
+    CL.DEFINITION_ AS [Cari Adı],
+    INV.GENEXP1 AS [Fatura Açıklama 1],
+    INV.GENEXP2 AS [Fatura Açıklama 2],
+    INV.VAT AS [KDV Oranı],
+    INV.TOTALVAT AS [Toplam KDV],
+    INV.GROSSTOTAL AS [Brüt Toplam],
+    INV.NETTOTAL AS [TL Tutarı],
+    INV.TRNET AS [Döviz Tutarı],
+    ISNULL(CURR.CURCODE, 'TL') AS [Döviz Türü],
+    USERS.NAME AS [Kaydı Yapan]
+FROM 
+    LG_{firma}_{period}_INVOICE INV WITH(NOLOCK)
+LEFT JOIN 
+    LG_{firma}_CLCARD CL WITH(NOLOCK) ON CL.LOGICALREF = INV.CLIENTREF
+LEFT JOIN 
+    L_CURRENCYLIST CURR WITH(NOLOCK) ON CURR.CURTYPE = INV.TRCURR AND CURR.FIRMNR = {firma}
+LEFT JOIN 
+    L_CAPIUSER USERS WITH(NOLOCK) ON USERS.NR = INV.CAPIBLOCK_CREATEDBY
+LEFT JOIN 
+    LG_{firma}_{period}_EARCHIVEDET EAR WITH (NOLOCK) ON EAR.INVOICEREF = INV.LOGICALREF
+WHERE 
+    INV.GRPCODE = 2          
+    AND INV.CANCELLED = 0     
+    AND INV.PROFILEID = 8    
+    AND (INV.ESTATUS IN (0,1,2,3))
+    AND (
+        (INV.EINVOICE = 1 AND INV.ESTATUS IN (0,1,2,3)) OR -- E-Fatura için ESTATUS kontrolü
+        (INV.EINVOICE = 2 AND EAR.EARCHIVESTATUS IN (0,1)) -- E-Arşiv için EAR.EARCHIVESTATUS kontrolü (Orijinalde 0,1 istenmişti, 2 de eklendi)
+    )
+ORDER BY 
+    INV.LOGICALREF DESC";
 
-                gridControl1.DataSource = dtInvoices;
-
-                // GridView tasarım ayarları
-                GridViewDesigner.CustomizeGrid(gridView1); // Varsayım: Harici bir tasarım sınıfı
+                DataTable dt = await SQLCrud.GetDataTableAsync(query, null);
+                dt.Columns.Add("UTS Durumu", typeof(string));
+                foreach (DataRow row in dt.Rows)
+                {
+                    string logicalRef = row["LOGICALREF"]?.ToString();
+                    if (cekilmisFaturalar.Contains(logicalRef))
+                    {
+                        row["UTS Durumu"] = "✓ Çekildi";
+                    }
+                    else
+                    {
+                        row["UTS Durumu"] = "Çekilmedi";
+                    }
+                }
+                gridControl1.DataSource = dt;
                 if (gridView1.Columns["LOGICALREF"] != null)
                     gridView1.Columns["LOGICALREF"].Visible = false;
-
+                if (gridView1.Columns["FaturaTarihiRaw"] != null)
+                    gridView1.Columns["FaturaTarihiRaw"].Visible = false;
+                if (gridView1.Columns["UTS Durumu"] != null)
+                {
+                    gridView1.Columns["UTS Durumu"].VisibleIndex = 0;
+                }
                 gridView1.BestFitColumns();
+                GridViewDesigner.CustomizeGrid(gridView1);
             }
             catch (Exception ex)
             {
                 XtraMessageBox.Show($"Faturalar yüklenemedi:\n{ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                await TextLog.LogToSQLiteAsync(_userName, $"Fatura Listeleme Hatası: {ex.Message}");
             }
         }
-
-
-        /// <summary>
-        /// Seçili faturanın satırlarını kontrol eder, UTS'e sorgular ve LINEEXP alanını günceller.
-        /// </summary>
-        private async Task CheckAndCallUtsForInvoiceAsync(string logicalRef)
+        private async Task<DataTable> GetUtsCekilmisFaturalarAsync()
         {
-            string firmaFilter = _firmaNr.PadLeft(3, '0');
-            string periodFilter = _periodNo.PadLeft(2, '0');
-
-            // LOGO'dan (SQL Server) fatura satırlarını çeken sorgu
-            string lineQuery = $@"
-                SELECT 
-                    SLT.LOGICALREF,
-                    SLT.LINEEXP 'LOT',
-                    ITM.GTIN_UNO 'GTN',
-                    SLT.AMOUNT,
-                    SLT.STOCKREF
-                FROM LG_{firmaFilter}_{periodFilter}_STLINE SLT WITH (NOLOCK)
-                JOIN LG_{firmaFilter}_ITEMS ITM WITH (NOLOCK) ON ITM.LOGICALREF = SLT.STOCKREF
-                WHERE SLT.INVOICEREF = @LogicalRef
-                AND SLT.LINETYPE IN (0, 1, 8)"; // Sadece Stok Satırları (0:Mal, 1:Ek maliyet, 8:Promosyon/Hediye)
-
-            var parameters = new Dictionary<string, object> { { "@LogicalRef", logicalRef } };
-
-            DataTable dtLines;
             try
             {
-                // SQL Server'dan veri çekme (SQLCrud'un varlığı varsayılır)
-                dtLines = await SQLCrud.GetDataTableAsync(lineQuery, parameters);
+                string query = "SELECT DISTINCT INVOICEREF FROM UTSCekimKayitlari WHERE UTSdenCekildi = 1";
+                return await SQLiteCrud.GetDataFromSQLiteAsync(query);
             }
-            catch (Exception ex)
+            catch
             {
-                XtraMessageBox.Show($"LOGO Satır verileri yüklenemedi: {ex.Message}", "LOGO Veri Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                await TextLog.LogToSQLiteAsync(_userName, $"LOGO Satır Çekme Hatası (LogicalRef: {logicalRef}): {ex.Message}");
+                return null;
+            }
+        }
+        private async Task CheckAndCallUtsForInvoiceAsync(string logicalRef, string faturaNo, string faturaTarihi)
+        {
+            string firma = _firmaNr.PadLeft(3, '0');
+            string period = _periodNo.PadLeft(2, '0');
+            string sql = $@"
+                SELECT 
+                    SL.LOGICALREF,
+                    SL.INVOICEREF,
+                    SL.LINEEXP AS LOT,
+                    IT.GTIN_UNO AS UNO,
+                    IT.CODE AS MalzemeKodu,
+                    IT.NAME AS MalzemeAdi,
+                    SL.AMOUNT,
+                    SL.STOCKREF
+                FROM LG_{firma}_{period}_STLINE SL WITH(NOLOCK)
+                INNER JOIN LG_{firma}_ITEMS IT WITH(NOLOCK) ON IT.LOGICALREF = SL.STOCKREF
+                WHERE SL.INVOICEREF = @LogicalRef
+                  AND SL.LINETYPE IN (0,1,8)
+                  AND IT.GTIN_UNO IS NOT NULL AND IT.GTIN_UNO <> ''";
+            Dictionary<string, object> prms = new Dictionary<string, object> { { "@LogicalRef", logicalRef } };
+            DataTable dt = await SQLCrud.GetDataTableAsync(sql, prms);
+            if (dt == null || dt.Rows.Count == 0)
+            {
+                XtraMessageBox.Show("Bu faturada UNO tanımlı malzeme satırı bulunamadı.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 return;
             }
-
-            if (dtLines == null || dtLines.Rows.Count == 0)
+            List<string> successRows = new List<string>();
+            List<string> failRows = new List<string>();
+            List<string> errorMessages = new List<string>();
+            foreach (DataRow row in dt.Rows)
             {
-                XtraMessageBox.Show("Seçilen faturada UTS kontrolü yapılacak stok satırı bulunamadı.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                return;
-            }
-
-            var updateTasks = new List<Task>();
-            var errorMessages = new List<string>();
-
-            // Her bir satırı döngüye al
-            foreach (DataRow row in dtLines.Rows)
-            {
-                var lineRef = row["LOGICALREF"]?.ToString();
-                var lotRaw = row["LOT"]?.ToString();
-                var gtin = row["GTN"]?.ToString();
-                // SQL'den gelen miktar decimal olarak okunur
-                var amount = row["AMOUNT"] != DBNull.Value ? Convert.ToDecimal(row["AMOUNT"]) : 0m;
-
-                // 1. Veri Kontrolü (Boş/Sıfır Kontrolü)
-                if (string.IsNullOrWhiteSpace(lotRaw) || string.IsNullOrWhiteSpace(gtin) || amount <= 0)
+                string lineRef = row["LOGICALREF"].ToString();
+                string invoiceRef = row["INVOICEREF"].ToString();
+                string lot = row["LOT"]?.ToString() ?? "";
+                string uno = row["UNO"]?.ToString() ?? "";
+                string malzemeKodu = row["MalzemeKodu"]?.ToString() ?? "";
+                string malzemeAdi = row["MalzemeAdi"]?.ToString() ?? "";
+                int amount = row["AMOUNT"] != DBNull.Value ? Convert.ToInt32(row["AMOUNT"]) : 0;
+                if (string.IsNullOrWhiteSpace(uno))
                 {
-                    errorMessages.Add($"Satır LOGICALREF {lineRef}: Lot ({lotRaw}), GTIN ({gtin}) veya Miktar ({amount}) boş/sıfır olamaz. Lütfen LOGO'dan doldurun.");
+                    string msg = $"❌ Malzeme '{malzemeKodu}' için UNO tanımlı değil!";
+                    errorMessages.Add(msg);
+                    failRows.Add(lineRef);
+                    await TextLog.LogToSQLiteAsync(_userName, msg);
                     continue;
                 }
-
-                // 2. LOT Verisinin Ayrıştırılması
-                string lotNo;
-                if (lotRaw.Contains("---"))
+                if (string.IsNullOrWhiteSpace(lot))
                 {
-                    // Eğer LINEEXP içinde URT/SKT bilgisi varsa, '---' solundaki Lot Numarasıdır.
-                    lotNo = lotRaw.Split(new[] { "---" }, StringSplitOptions.None)[0].Trim();
+                    string msg = $"❌ Malzeme '{malzemeKodu}' için LOT/LINEEXP boş!";
+                    errorMessages.Add(msg);
+                    failRows.Add(lineRef);
+                    await TextLog.LogToSQLiteAsync(_userName, msg);
+                    continue;
+                }
+                if (amount <= 0)
+                {
+                    string msg = $"❌ Malzeme '{malzemeKodu}' için miktar geçersiz: {amount}";
+                    errorMessages.Add(msg);
+                    failRows.Add(lineRef);
+                    await TextLog.LogToSQLiteAsync(_userName, msg);
+                    continue;
+                }
+                string lotNo = lot.Contains("---")
+                    ? lot.Split(new[] { "---" }, StringSplitOptions.None)[0].Trim()
+                    : lot.Trim();
+                if (string.IsNullOrWhiteSpace(lotNo))
+                {
+                    string msg = $"❌ Malzeme '{malzemeKodu}' için LOT parse edilemedi.";
+                    errorMessages.Add(msg);
+                    failRows.Add(lineRef);
+                    await TextLog.LogToSQLiteAsync(_userName, msg);
+                    continue;
+                }
+                var result = await ProcessUtsQueryAsync(
+                    lineRef, invoiceRef, faturaNo, faturaTarihi,
+                    uno, lotNo, amount, malzemeKodu, malzemeAdi, _userName
+                );
+                if (result.Success)
+                {
+                    successRows.Add($"{malzemeKodu} (Satır: {lineRef})");
                 }
                 else
                 {
-                    lotNo = lotRaw.Trim();
+                    failRows.Add($"{malzemeKodu} (Satır: {lineRef})");
+                    errorMessages.Add(result.ErrorMessage);
                 }
-
-                // 3. UTS API'ye Sorgu Gönderme ve Sonuçları İşleme (Asenkron)
-                // Decimal miktarı API'nin int ihtiyacına karşılık int'e çeviriyoruz
-                updateTasks.Add(ProcessUtsQueryAsync(lineRef, gtin, lotNo, (int)amount, _userName));
             }
-
-            // Tüm asenkron işlemleri bekle
-            await Task.WhenAll(updateTasks);
-
-            // Toplanan hataları göster
+            string resultMessage = $"═══════════════════════════════════\n";
+            resultMessage += $"UTS İŞLEM SONUÇLARI - Fatura: {faturaNo}\n";
+            resultMessage += $"═══════════════════════════════════\n\n";
+            resultMessage += $"✅ Başarılı: {successRows.Count} satır\n";
+            resultMessage += $"❌ Başarısız: {failRows.Count} satır\n\n";
+            if (successRows.Count > 0)
+            {
+                resultMessage += "BAŞARILI SATIRLAR:\n";
+                foreach (var s in successRows)
+                    resultMessage += $"  • {s}\n";
+                resultMessage += "\n";
+            }
             if (errorMessages.Count > 0)
             {
-                XtraMessageBox.Show(
-                    "Bazı satırlarda eksik bilgi bulundu. Lütfen LOGO'dan düzeltin:\n\n" + string.Join("\n", errorMessages),
-                    "Eksik Bilgi Uyarısı",
-                    MessageBoxButtons.OK,
-                    MessageBoxIcon.Warning
-                );
+                resultMessage += "HATALAR:\n";
+                foreach (var e in errorMessages)
+                    resultMessage += $"  • {e}\n";
             }
-
-            XtraMessageBox.Show("UTS kontrol ve güncelleme işlemleri tamamlandı. Sonuçlar için logları kontrol edin.", "İşlem Tamamlandı", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBoxIcon icon = failRows.Count == 0 ? MessageBoxIcon.Information : MessageBoxIcon.Warning;
+            XtraMessageBox.Show(resultMessage, "UTS İşlem Sonucu", MessageBoxButtons.OK, icon);
         }
-
-        /// <summary>
-        /// Tek bir fatura satırı için UTS sorgusu yapar, miktarı kontrol eder ve LINEEXP'i günceller.
-        /// </summary>
-        private async Task ProcessUtsQueryAsync(string lineRef, string gtin, string lotNo, int logoAmount, string userName)
+        private async Task<(bool Success, string ErrorMessage)> ProcessUtsQueryAsync(
+            string lineRef, string invoiceRef, string faturaNo, string faturaTarihi,
+            string gtin, string lotNo, int amount,
+            string malzemeKodu, string malzemeAdi, string userName)
         {
-            string logMessage = $"Satır {lineRef}, UNO: {gtin}, LNO: {lotNo}";
-
             try
             {
-                // UNO=GTIN, LNO=LOT, SAN=0 (Seri No her zaman 0 olarak gönderiliyor)
-                var utsResult = await UTSApiClient.SorgulaTekilUrunAsync(gtin, lotNo, "0", userName);
-
-                // API bağlantı veya token hatası varsa utsResult null döner
-                if (utsResult == null) return;
-
-                if (utsResult.UrunListesi == null || utsResult.UrunListesi.Count == 0)
+                UTSQueryResponse utsResult = await UTSApiClient.QueryAsync(gtin, lotNo, "0", amount);
+                if (utsResult == null)
                 {
-                    XtraMessageBox.Show($"UTS Sorgu Başarısız ({logMessage}): Ürün kaydı bulunamadı.", "UTS Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    await TextLog.LogToSQLiteAsync(userName, $"UTS API Yanıtı Boş: {logMessage}");
-                    return;
+                    string msg = $"UTS yanıt null - {malzemeKodu}";
+                    await TextLog.LogToSQLiteAsync(userName, msg);
+                    return (false, msg);
                 }
-
-                var urunDetayi = utsResult.UrunListesi[0];
-                int utsAvailableAmount = urunDetayi.Adet; // ADT alanını kullanıyoruz
-
-                // 4. Miktar Kontrolü
-                if (logoAmount > utsAvailableAmount)
+                if (!utsResult.Success)
                 {
-                    XtraMessageBox.Show(
-                        $"UTS Stok Yetersiz! ({logMessage}): LOGO Miktar: {logoAmount}, UTS Kullanılabilir: {utsAvailableAmount}. Çıkış yapılamaz.",
-                        "Stok Yetersiz",
-                        MessageBoxButtons.OK,
-                        MessageBoxIcon.Stop
-                    );
-                    await TextLog.LogToSQLiteAsync(userName, $"Miktar Yet. Değil: {logMessage}, LOGO: {logoAmount}, UTS: {utsAvailableAmount}");
-                    return;
+                    string msg = $"UTS Hata: {utsResult.Message} - {malzemeKodu}";
+                    await TextLog.LogToSQLiteAsync(userName, msg);
+                    return (false, msg);
                 }
-
-                // 5. LINEEXP Alanını Güncelleme
-                // Yeni Format: LOT --- URT Tarihi // SKT Tarihi (Örn: LOT123 --- 2024-01-01 // 2025-01-01)
-                string newUrtSktPart = $"--- {urunDetayi.UretimTarihi:yyyy-MM-dd} // {urunDetayi.SonKullanmaTarihi:yyyy-MM-dd}";
-                string newLineExp = $"{lotNo} {newUrtSktPart}";
-
-                // LINEEXP Güncelleme Sorgusu
-                string updateQuery = $@"
-                    UPDATE LG_{_firmaNr.PadLeft(3, '0')}_{_periodNo.PadLeft(2, '0')}_STLINE
-                    SET LINEEXP = @NewLineExp
-                    WHERE LOGICALREF = @LineRef";
-
-                var updateParams = new Dictionary<string, object>
+                if (utsResult.Urun == null)
                 {
-                    { "@NewLineExp", newLineExp },
-                    { "@LineRef", lineRef }
+                    string msg = $"UTS'de ürün bulunamadı - {malzemeKodu}";
+                    await TextLog.LogToSQLiteAsync(userName, msg);
+                    return (false, msg);
+                }
+                UTSUrunResponse urun = utsResult.Urun;
+                string newLineExp = (!string.IsNullOrEmpty(urun.UretimTarihi) && !string.IsNullOrEmpty(urun.SonKullanmaTarihi))
+                    ? $"{lotNo} --- {urun.UretimTarihi} // {urun.SonKullanmaTarihi}"
+                    : lotNo;
+                string firma = _firmaNr.PadLeft(3, '0');
+                string period = _periodNo.PadLeft(2, '0');
+                string updateSql = $@"
+                    UPDATE LG_{firma}_{period}_STLINE
+                    SET LINEEXP = @P1
+                    WHERE LOGICALREF = @P2";
+                Dictionary<string, object> updatePrm = new Dictionary<string, object>
+                {
+                    { "@P1", newLineExp },
+                    { "@P2", lineRef }
                 };
-
-                // SQLCrud'un InsertUpdateDeleteAsync metodu üzerinden güncelleme yapılır (varsayım)
-                var updateResult = await SQLCrud.ExecuteCrudAsync(updateQuery, updateParams);
-
-                if (updateResult)
+                bool lineExpUpdated = await SQLCrud.ExecuteCrudAsync(updateSql, updatePrm);
+                if (!lineExpUpdated)
                 {
-                    await TextLog.LogToSQLiteAsync(userName, $"STLINE Güncelleme Başarılı: {logMessage}, Yeni LINEEXP: {newLineExp}");
+                    string msg = $"LINEEXP güncellenemedi - {malzemeKodu}";
+                    await TextLog.LogToSQLiteAsync(userName, msg);
+                    return (false, msg);
                 }
-                else
-                {
-                    XtraMessageBox.Show($"STLINE Güncelleme Hatası ({logMessage}): {updateResult}", "DB Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
+                await InsertPtsNoticeRecordsAsync(
+                    firma, period, faturaNo, faturaTarihi,
+                    gtin, lotNo, urun.UretimTarihi, urun.SonKullanmaTarihi,
+                    amount, userName
+                );
+                await InsertUtsCekimKaydiAsync(
+                    lineRef, invoiceRef, faturaNo, faturaTarihi,
+                    gtin, lotNo, "", amount,
+                    urun.UretimTarihi, urun.SonKullanmaTarihi,
+                    urun.UrunTipi, urun.MarkaModel, urun.UtsStokMiktari,
+                    userName
+                );
+                return (true, null);
             }
             catch (Exception ex)
             {
-                XtraMessageBox.Show($"UTS İşleme Genel Hata ({logMessage}): {ex.Message}", "İşlem Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                await TextLog.LogToSQLiteAsync(userName, $"UTS İşleme Genel Hata: {logMessage}, Exception: {ex.Message}");
+                string msg = $"HATA: {ex.Message} - {malzemeKodu}";
+                await TextLog.LogToSQLiteAsync(userName, msg);
+                return (false, msg);
+            }
+        }
+        private async Task<bool> InsertPtsNoticeRecordsAsync(
+            string firma, string period,
+            string faturaNo, string faturaTarihi,
+            string gtin, string lotNo,
+            string uretimTarihi, string sonKullanmaTarihi,
+            int amount, string userName)
+        {
+            try
+            {
+                DateTime faturaDate;
+                if (!DateTime.TryParse(faturaTarihi, out faturaDate))
+                    faturaDate = DateTime.Now;
+                for (int i = 0; i < amount; i++)
+                {
+                    string insertSql = $@"
+                        INSERT INTO LG_{firma}_PTSNOTICE 
+                        (DOCNUMBER, DOCDATE, GTIN, LOTNUMBER, EXPIRATIONDATE, SERIALNUMBER, PRODUCTIONDATE, 
+                         CAPIBLOCK_CREATEDBY, CAPIBLOCK_CREADEDDATE, CAPIBLOCK_CREATEDHOUR, CAPIBLOCK_CREATEDMIN, CAPIBLOCK_CREATEDSEC,
+                         CAPIBLOCK_MODIFIEDBY, CAPIBLOCK_MODIFIEDDATE, CAPIBLOCK_MODIFIEDHOUR, CAPIBLOCK_MODIFIEDMIN, CAPIBLOCK_MODIFIEDSEC)
+                        VALUES 
+                        (@FaturaNo, @FaturaTarihi, @GTIN, @LotNo, @SKT, '', @URT,
+                         1, GETDATE(), DATEPART(HOUR, GETDATE()), DATEPART(MINUTE, GETDATE()), DATEPART(SECOND, GETDATE()),
+                         NULL, NULL, NULL, NULL, NULL)";
+                    Dictionary<string, object> insertPrm = new Dictionary<string, object>
+                    {
+                        { "@FaturaNo", faturaNo },
+                        { "@FaturaTarihi", faturaDate },
+                        { "@GTIN", gtin },
+                        { "@LotNo", lotNo },
+                        { "@SKT", string.IsNullOrEmpty(sonKullanmaTarihi) ? DBNull.Value : (object)sonKullanmaTarihi },
+                        { "@URT", string.IsNullOrEmpty(uretimTarihi) ? DBNull.Value : (object)uretimTarihi }
+                    };
+                    bool success = await SQLCrud.ExecuteCrudAsync(insertSql, insertPrm);
+                    if (!success)
+                    {
+                        await TextLog.LogToSQLiteAsync(userName, $"PTS Notice insert hatası - Kayıt {i + 1}/{amount}");
+                        return false;
+                    }
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                await TextLog.LogToSQLiteAsync(userName, $"PTS Notice HATA: {ex.Message}");
+                return false;
+            }
+        }
+        private async Task<bool> InsertUtsCekimKaydiAsync(
+            string lineRef, string invoiceRef,
+            string faturaNo, string faturaTarihi,
+            string uno, string lno, string seriNo, int miktar,
+            string uretimTarihi, string sonKullanmaTarihi,
+            string urunTipi, string markaModel, int utsStokMiktari,
+            string userName)
+        {
+            try
+            {
+                string insertSql = @"
+                    INSERT INTO UTSCekimKayitlari 
+                    (STLINE_LOGICALREF, INVOICEREF, FaturaNo, FaturaTarihi, UNO, LNO, SeriNo, Miktar,
+                     UretimTarihi, SonKullanmaTarihi, UrunTipi, MarkaModel, UTSStokMiktari,
+                     UTSdenCekildi, LogoKayitAtildi, KayitTarihi, KullaniciAdi)
+                    VALUES 
+                    (@LineRef, @InvoiceRef, @FaturaNo, @FaturaTarihi, @UNO, @LNO, @SeriNo, @Miktar,
+                     @UretimTarihi, @SKT, @UrunTipi, @MarkaModel, @UTSStok,
+                     1, 1, @KayitTarihi, @Kullanici)";
+                Dictionary<string, object> prm = new Dictionary<string, object>
+                {
+                    { "@LineRef", lineRef },
+                    { "@InvoiceRef", invoiceRef },
+                    { "@FaturaNo", faturaNo ?? "" },
+                    { "@FaturaTarihi", faturaTarihi ?? "" },
+                    { "@UNO", uno },
+                    { "@LNO", lno },
+                    { "@SeriNo", seriNo ?? "" },
+                    { "@Miktar", miktar },
+                    { "@UretimTarihi", uretimTarihi ?? "" },
+                    { "@SKT", sonKullanmaTarihi ?? "" },
+                    { "@UrunTipi", urunTipi ?? "" },
+                    { "@MarkaModel", markaModel ?? "" },
+                    { "@UTSStok", utsStokMiktari },
+                    { "@KayitTarihi", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") },
+                    { "@Kullanici", userName }
+                };
+                var success = await SQLiteCrud.InsertUpdateDeleteAsync(insertSql, prm);
+                return success.Success;
+            }
+            catch (Exception ex)
+            {
+                await TextLog.LogToSQLiteAsync(userName, $"SQLite kayıt HATA: {ex.Message}");
+                return false;
             }
         }
     }

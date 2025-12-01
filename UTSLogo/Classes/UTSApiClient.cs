@@ -1,104 +1,155 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
+using System.Data;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using DevExpress.XtraEditors;
-using System.Data;
-using System.Windows.Forms;
-using UTSLogo.Models; // Modelleri dahil ediyoruz
+using UTSLogo.Models;
 
 namespace UTSLogo.Classes
 {
-    public static class UTSApiClient
+    internal class UTSApiClient
     {
-        private const string BaseUrl = "https://utsuygulama.saglik.gov.tr/UTS/uh/rest/";
-        private const string SorgulamaEndpoint = "tekilUrun/sorgula";
+        private static readonly HttpClient _httpClient = new HttpClient();
+        private static readonly string BaseUrl = $"{ApiConstants.BaseApiUrl}UTS/";
+        private static bool _headerSet = false;
 
-        // --- Token Çekme Metodu ---
-        private static async Task<string> GetUtsTokenAsync()
+        #region ==================== UTS SORGULAMA ====================
+
+        internal static async Task<UTSQueryResponse> QueryAsync(string uno, string lno, string sn, int adet)
         {
-            const string query = "SELECT Token FROM UTS LIMIT 1";
             try
             {
-                DataTable result = await SQLiteCrud.GetDataFromSQLiteAsync(query);
+                await EnsureHeaderSetAsync();
 
-                if (result != null && result.Rows.Count > 0 && result.Columns.Contains("Token"))
+                string customerGUID = await GetCustomerGUIDAsync();
+
+                if (string.IsNullOrEmpty(customerGUID))
                 {
-                    return result.Rows[0]["Token"].ToString();
+                    return new UTSQueryResponse
+                    {
+                        Success = false,
+                        Message = "Müşteri kaydı bulunamadı. Lütfen önce kayıt olun."
+                    };
                 }
 
-                await TextLog.LogToSQLiteAsync("API Token Hatası", "UTS tablosunda token bulunamadı veya tablo boş.");
-                XtraMessageBox.Show("UTS Token veritabanında bulunamadı. Lütfen ayarları kontrol edin.", "Token Hatası", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                var request = new UTSQueryRequest
+                {
+                    CustomerGUID = customerGUID,
+                    UNO = uno,
+                    LNO = lno,
+                    SN = sn,
+                    Adet = adet
+                };
+
+                string json = JsonConvert.SerializeObject(request);
+                var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                HttpResponseMessage response = await _httpClient.PostAsync($"{BaseUrl}Query", content);
+                string responseJson = await response.Content.ReadAsStringAsync();
+
+                // 🆕 Yanıtı logla (debug için)
+                await TextLog.LogToSQLiteAsync("UTSApiClient", $"API Yanıt: {responseJson}");
+
+                var result = JsonConvert.DeserializeObject<UTSQueryResponse>(responseJson);
+
+                if (result == null)
+                {
+                    await TextLog.LogToSQLiteAsync("UTSApiClient", $"Deserialize null döndü! Raw: {responseJson}");
+                    return new UTSQueryResponse
+                    {
+                        Success = false,
+                        Message = "API yanıtı işlenemedi."
+                    };
+                }
+
+                return result;
+            }
+            catch (TaskCanceledException)
+            {
+                await TextLog.LogToSQLiteAsync("UTSApiClient", $"Timeout hatası");
+                return new UTSQueryResponse
+                {
+                    Success = false,
+                    Message = "Sunucu yanıt vermedi (Timeout)."
+                };
+            }
+            catch (HttpRequestException ex)
+            {
+                await TextLog.LogToSQLiteAsync("UTSApiClient", $"HTTP hatası: {ex.Message}");
+                return new UTSQueryResponse
+                {
+                    Success = false,
+                    Message = "Sunucuya bağlanılamadı."
+                };
+            }
+            catch (Exception ex)
+            {
+                await TextLog.LogToSQLiteAsync("UTSApiClient", $"Genel hata: {ex.Message}");
+                return new UTSQueryResponse
+                {
+                    Success = false,
+                    Message = $"Hata: {ex.Message}"
+                };
+            }
+        }
+
+        #endregion
+
+        #region ==================== HELPER METODLAR ====================
+
+        /// <summary>
+        /// X-Api-Key header'ını SQLite'dan çekip ayarlar (bir kez)
+        /// </summary>
+        private static async Task EnsureHeaderSetAsync()
+        {
+            if (_headerSet) return;
+
+            try
+            {
+                string query = "SELECT CustomerToken FROM ClientSettings LIMIT 1";
+                DataTable dt = await SQLiteCrud.GetDataFromSQLiteAsync(query);
+
+                if (dt?.Rows.Count > 0)
+                {
+                    string apiKey = dt.Rows[0]["CustomerToken"]?.ToString();
+
+                    if (!string.IsNullOrEmpty(apiKey))
+                    {
+                        _httpClient.DefaultRequestHeaders.Remove("X-Api-Key");
+                        _httpClient.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+                        _headerSet = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await TextLog.LogToSQLiteAsync("UTSApiClient", $"Header ayarlama hatası: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// SQLite'dan sadece CustomerGUID çeker
+        /// </summary>
+        private static async Task<string> GetCustomerGUIDAsync()
+        {
+            try
+            {
+                string query = "SELECT CustomerGUID FROM ClientSettings LIMIT 1";
+                DataTable dt = await SQLiteCrud.GetDataFromSQLiteAsync(query);
+
+                if (dt?.Rows.Count > 0)
+                    return dt.Rows[0]["CustomerGUID"]?.ToString();
+
                 return null;
             }
             catch (Exception ex)
             {
-                await TextLog.LogToSQLiteAsync("API Token Hatası", $"Token çekilirken hata oluştu: {ex.Message}");
-                XtraMessageBox.Show($"Token çekilirken beklenmedik bir hata oluştu: {ex.Message}", "Token Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                await TextLog.LogToSQLiteAsync("UTSApiClient", $"GetCustomerGUIDAsync hata: {ex.Message}");
                 return null;
             }
         }
 
-        // --- Ana Sorgulama Metodu ---
-        public static async Task<UtsTekilUrunYanit> SorgulaTekilUrunAsync(string uno, string lno, string san, string userName)
-        {
-            string utsToken = await GetUtsTokenAsync();
-            if (string.IsNullOrEmpty(utsToken))
-            {
-                return null;
-            }
-
-            var requestData = new TekilUrunSorguRequest
-            {
-                Uno = uno,
-                Lno  = lno,
-                San = san
-            };
-
-            string jsonContent = JsonConvert.SerializeObject(requestData);
-            string fullUrl = $"{BaseUrl}{SorgulamaEndpoint}";
-
-            using (var client = new HttpClient())
-            {
-                try
-                {
-                    client.DefaultRequestHeaders.Clear();
-                    client.DefaultRequestHeaders.Add("utsToken", utsToken);
-                    var httpContent = new StringContent(jsonContent, Encoding.UTF8, "application/json");
-                    HttpResponseMessage response = await client.PostAsync(fullUrl, httpContent);
-                    string responseString = await response.Content.ReadAsStringAsync();
-
-                    if (response.IsSuccessStatusCode)
-                    {
-                        var apiResponse = JsonConvert.DeserializeObject<UtsTekilUrunYanit>(responseString);
-                        await TextLog.LogToSQLiteAsync(userName, $"UTS Sorgu Başarılı: UNO={uno}, Yanıt Kodu: {response.StatusCode}");
-                        return apiResponse;
-                    }
-                    else
-                    {
-                        string logMessage = $"UTS API Hatası - HTTP Kodu: {response.StatusCode} | Detay: {responseString} | UNO={uno}";
-                        await TextLog.LogToSQLiteAsync(userName, logMessage);
-                        XtraMessageBox.Show($"UTS'den Hata Alındı ({response.StatusCode}). Detaylar loglandı.", "API Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                        return new UtsTekilUrunYanit { UrunListesi = null, Mesaj = $"HTTP Hatası: {response.StatusCode} - {responseString.Substring(0, Math.Min(responseString.Length, 100))}..." };
-                    }
-                }
-                catch (HttpRequestException httpEx)
-                {
-                    string logMessage = $"UTS Sorgu sırasında Ağ Hatası: {httpEx.Message} | UNO={uno}";
-                    await TextLog.LogToSQLiteAsync(userName, logMessage);
-                    XtraMessageBox.Show($"UTS sorgusu sırasında ağ hatası oluştu: {httpEx.Message}", "Bağlantı Hatası", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return null;
-                }
-                catch (Exception ex)
-                {
-                    string logMessage = $"UTS Sorgu sırasında Genel Hata: {ex.Message} | UNO={uno}";
-                    await TextLog.LogToSQLiteAsync(userName, logMessage);
-                    XtraMessageBox.Show($"UTS sorgusu sırasında beklenmedik bir hata oluştu: {ex.Message}", "Genel Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    return null;
-                }
-            }
-        }
+        #endregion
     }
 }

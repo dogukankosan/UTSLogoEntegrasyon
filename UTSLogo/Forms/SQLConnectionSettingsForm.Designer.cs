@@ -116,7 +116,7 @@
             // 
             // txt_PeriodNo
             // 
-            this.txt_PeriodNo.EditValue = "01";
+            this.txt_PeriodNo.EditValue = "";
             this.txt_PeriodNo.Location = new System.Drawing.Point(20, 423);
             this.txt_PeriodNo.Name = "txt_PeriodNo";
             this.txt_PeriodNo.Properties.Appearance.Font = new System.Drawing.Font("Tahoma", 10.25F);

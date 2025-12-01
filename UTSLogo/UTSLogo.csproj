@@ -114,6 +114,8 @@
   <ItemGroup>
     <Compile Include="Bussines\SQLSettingsValidator.cs" />
     <Compile Include="Bussines\UserValidator.cs" />
+    <Compile Include="Classes\UTSApiClient.cs" />
+    <Compile Include="Classes\WebAPIClient.cs" />
     <Compile Include="Classes\DataHelper.cs" />
     <Compile Include="Classes\EncryptionHelper.cs" />
     <Compile Include="Classes\GridViewDesigner.cs" />
@@ -121,7 +123,6 @@
     <Compile Include="Classes\SQLCrud.cs" />
     <Compile Include="Classes\SQLiteCrud.cs" />
     <Compile Include="Classes\TextLog.cs" />
-    <Compile Include="Classes\UTSApiClient.cs" />
     <Compile Include="Forms\ErrorListForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -176,8 +177,11 @@
     <Compile Include="Forms\UTSForm.Designer.cs">
       <DependentUpon>UTSForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\ApiConstants.cs" />
     <Compile Include="Models\TekilUrunSorguRequest.cs" />
     <Compile Include="Models\UrunDetayi.cs" />
+    <Compile Include="Models\UTSQueryRequest.cs" />
+    <Compile Include="Models\UTSQueryResponse.cs" />
     <Compile Include="Models\UtsTekilUrunYanit.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

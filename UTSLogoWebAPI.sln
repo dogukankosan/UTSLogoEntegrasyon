@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.14.36717.8 d17.14
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UTSLogoWebAPI", "UTSLogoWebAPI\UTSLogoWebAPI.csproj", "{270C4F2E-7084-4CCD-B276-910A6FD2D187}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{270C4F2E-7084-4CCD-B276-910A6FD2D187}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{270C4F2E-7084-4CCD-B276-910A6FD2D187}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{270C4F2E-7084-4CCD-B276-910A6FD2D187}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{270C4F2E-7084-4CCD-B276-910A6FD2D187}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4D352172-B632-4F58-B92E-88E881E4EC3C}
+	EndGlobalSection
+EndGlobal

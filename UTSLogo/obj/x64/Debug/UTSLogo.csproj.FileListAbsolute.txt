@@ -13,6 +13,7 @@ C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\DevExpress.XtraEdito
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\DevExpress.XtraGrid.v20.1.dll
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\DevExpress.XtraLayout.v20.1.dll
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\DevExpress.XtraPrinting.v20.1.dll
+C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\Newtonsoft.Json.dll
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\SQLitePCLRaw.batteries_v2.dll
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\SQLitePCLRaw.core.dll
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\SQLitePCLRaw.provider.e_sqlite3.dll
@@ -36,6 +37,7 @@ C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\DevExpress.Printing.
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\DevExpress.XtraGrid.v20.1.xml
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\DevExpress.XtraLayout.v20.1.xml
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\DevExpress.XtraPrinting.v20.1.xml
+C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\Newtonsoft.Json.xml
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\System.Buffers.xml
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\System.Memory.xml
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\System.Numerics.Vectors.xml
@@ -97,11 +99,15 @@ C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\de\DevExpress.Office
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\es\DevExpress.Office.v20.1.Core.resources.dll
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\ja\DevExpress.Office.v20.1.Core.resources.dll
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\ru\DevExpress.Office.v20.1.Core.resources.dll
+C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.ErrorListForm.resources
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.FormCompanyChoose.resources
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.HomeForm.resources
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.LoginForm.resources
+C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.SalesDetailsForm.resources
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.SalesInvoicesForm.resources
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.SQLConnectionSettingsForm.resources
+C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.UsersForm.resources
+C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.UTSForm.resources
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Properties.Resources.resources
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.csproj.GenerateResource.cache
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.exe.licenses
@@ -109,10 +115,4 @@ C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.csproj.CoreC
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.csproj.CopyComplete
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.exe
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.pdb
-C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.UsersForm.resources
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.csprojAssemblyReference.cache
-C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.UTSForm.resources
-C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.ErrorListForm.resources
-C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.SalesDetailsForm.resources
-C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\Newtonsoft.Json.dll
-C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\Newtonsoft.Json.xml
