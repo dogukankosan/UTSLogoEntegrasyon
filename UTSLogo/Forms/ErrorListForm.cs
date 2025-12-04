@@ -66,7 +66,7 @@ namespace UTSLogo.Forms
                     {
                         using (FileStream fs = new FileStream(filePath, System.IO.FileMode.Open, System.IO.FileAccess.ReadWrite))
                         {
-                            // Dosya açılabiliyorsa kapatıyoruz
+                          
                         }
                     }
                     catch

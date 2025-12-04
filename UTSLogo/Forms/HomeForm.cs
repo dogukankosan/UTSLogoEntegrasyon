@@ -14,15 +14,12 @@ namespace UTSLogo.Forms
         public HomeForm()
         {
             InitializeComponent();
-            // Tema değişimini dinle
             UserLookAndFeel.Default.StyleChanged += Default_StyleChanged;
         }
-
         public string userName = "";
         public string firmaNr = "";
         public string periodNo = "";
-        public bool isAdmin = false; // Admin yetkisi
-
+        public bool isAdmin = false; 
         internal void OpenFormInContainer(Form form)
         {
             if (form == null) return;
@@ -42,22 +39,14 @@ namespace UTSLogo.Forms
             }
             catch (Exception) { }
         }
-
         private async void HomeForm_Load(object sender, EventArgs e)
         {
             UpdateUserInfoDisplay();
-
-            // DevExpress bonus skinleri ve form skinlerini aktifleştir
             DevExpress.UserSkins.BonusSkins.Register();
             DevExpress.Skins.SkinManager.EnableFormSkins();
-
-            // Kullanıcının kaydettiği temayı uygula
             await LoadUserThemeAsync();
-
-            // Kullanıcı admin değilse accordionControlElement1 gizle
             accordionControlElement1.Visible = isAdmin;
         }
-
         private void UpdateUserInfoDisplay()
         {
             if (!string.IsNullOrEmpty(userName))
@@ -71,15 +60,13 @@ namespace UTSLogo.Forms
                 companyChooseControlElement2.Appearance.Normal.TextOptions.WordWrap = DevExpress.Utils.WordWrap.Wrap;
             }
         }
-
         private async Task LoadUserThemeAsync()
         {
             try
             {
                 string query = "SELECT Thema, IsAdmin FROM Users WHERE UserName=@user LIMIT 1";
-                var param = new Dictionary<string, object> { { "@user", userName } };
+                Dictionary<string, object> param = new Dictionary<string, object> { { "@user", userName } };
                 DataTable dt = await SQLiteCrud.GetDataFromSQLiteAsync(query, param);
-
                 if (dt != null && dt.Rows.Count > 0)
                 {
                     string savedTheme = dt.Rows[0]["Thema"]?.ToString();
@@ -87,8 +74,6 @@ namespace UTSLogo.Forms
                         UserLookAndFeel.Default.SkinName = savedTheme;
                     else
                         UserLookAndFeel.Default.SkinName = "Basic";
-
-                    // Admin kontrolü
                     isAdmin = Convert.ToInt32(dt.Rows[0]["IsAdmin"]) == 1;
                 }
             }
@@ -97,14 +82,12 @@ namespace UTSLogo.Forms
                 await TextLog.LogToSQLiteAsync(userName, "Tema yükleme hatası: " + ex.ToString());
             }
         }
-
-        // Kullanıcı tema değiştirdiğinde tetiklenir
         private async void Default_StyleChanged(object sender, EventArgs e)
         {
             try
             {
                 string currentTheme = UserLookAndFeel.Default.ActiveSkinName;
-                var updateParams = new Dictionary<string, object>
+                Dictionary<string, object> updateParams = new Dictionary<string, object>
                 {
                     { "@Thema", currentTheme },
                     { "@UserName", userName }
@@ -118,26 +101,19 @@ namespace UTSLogo.Forms
                 await TextLog.LogToSQLiteAsync(userName, "Tema kaydetme hatası: " + ex.ToString());
             }
         }
-
-        // Popup menü ile tema seçimi
         private void themaControlElement3_Click(object sender, EventArgs e)
         {
             popupMenu2.ShowPopup(Cursor.Position);
         }
-
         private async void companyChooseControlElement2_Click(object sender, EventArgs e)
         {
             FormCompanyChoose fr = new FormCompanyChoose();
             fr.ShowDialog();
-
             if (string.IsNullOrEmpty(fr.companyNr) || string.IsNullOrEmpty(fr.companyName) || string.IsNullOrEmpty(fr.periodNo))
                 return;
-
             firmaNr = fr.companyNr;
             periodNo = fr.periodNo;
-
-            // SQL’de de güncelle
-            var updateParams = new Dictionary<string, object>
+            Dictionary<string, object> updateParams = new Dictionary<string, object>
             {
                 { "@FirmaNR", firmaNr },
                 { "@PeriodNR", periodNo },
@@ -145,11 +121,8 @@ namespace UTSLogo.Forms
             };
             string updateSql = "UPDATE Users SET FirmaNR=@FirmaNR, PeriodNR=@PeriodNR WHERE UserName=@UserName COLLATE NOCASE";
             await SQLiteCrud.InsertUpdateDeleteAsync(updateSql, updateParams);
-
             UpdateUserInfoDisplay();
         }
-
-        // Panel form açma
         private void sqlSettingsControlElement1_Click(object sender, EventArgs e) => OpenFormInContainer(new SQLConnectionSettingsForm());
         private void invoicesControlElement2_Click(object sender, EventArgs e) { }
         private void salesInvoicesControlElement2_Click(object sender, EventArgs e) { OpenFormInContainer(new SalesInvoicesForm(userName,firmaNr.PadLeft(3, '0'),periodNo.PadLeft(2, '0'))); }

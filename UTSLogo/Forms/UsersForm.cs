@@ -50,7 +50,6 @@ namespace UTSLogo.Forms
                 gridView1.RowCellStyle += gridView1_RowCellStyle;
                 gridView1.CustomColumnDisplayText += gridView1_CustomColumnDisplayText; 
             }
-
         }
         private void gridView1_RowCellStyle(object sender, RowCellStyleEventArgs e)
         {

@@ -138,8 +138,7 @@ namespace UTSLogo.Classes
                 int oldCount = json?["oldCount"]?.Value<int>() ?? 0;
                 int newCount = json?["newCount"]?.Value<int>() ?? 0;
                 return (true, oldCount, newCount, message);
-            }
-         
+            }    
             return (false, 0, 0, message);
         }
         #endregion

@@ -61,12 +61,10 @@ namespace UTSLogo.Forms
                 return;
             try
             {
-
                 if (string.IsNullOrEmpty(companyNr))
                     txt_CompanyNo.Text = dt.Rows[0]["CompanyNo"].ToString();
                 else
                     txt_CompanyNo.Text = companyNr;
-
                 if (txt_CompanyNo.Text.Length == 1)
                     txt_CompanyNo.Text = "00" + txt_CompanyNo.Text;
                 if (txt_CompanyNo.Text.Length == 2)

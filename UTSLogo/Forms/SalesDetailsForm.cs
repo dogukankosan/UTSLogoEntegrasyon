@@ -56,9 +56,6 @@ SELECT 
     STLINE.PRICE AS [Birim Fiyat],
     STLINE.VAT AS [KDV Oranı],
     ROUND(STLINE.VATAMNT,3) AS [KDV Tutarı],
-    -- KDV Matrahı: Total - KDV Tutarı (Logo'da VATMATRAH bazen indirim vb. içerdiği için TOTAL üzerinden hesaplamak daha güvenli olabilir,
-    -- ancak orijinal sorgunuzdaki VATMATRAH kullanımı korundu, bu durumda: VATMATRAH - VATAMNT yanlış olabilir, sadece VATMATRAH kullanılmalıydı)
-    -- Orijinal SQL'de bu alan Total-VATAMNT olarak hesaplanmamıştır. Logo'da VATMATRAH doğrudan KDV Matrahıdır.
     ROUND(STLINE.VATMATRAH,3) AS [KDV Matrahı], 
     CASE WHEN STLINE.LINETYPE = 2 THEN NULL ELSE ROUND(STLINE.LINENET,3) END AS [Net Satış Tutarı],
     ID_KUR.CURCODE AS [İşlem Döviz Türü],

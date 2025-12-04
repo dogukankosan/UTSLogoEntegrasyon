@@ -26,26 +26,21 @@ namespace UTSLogo.Forms
             _periodNo = periodNo;
             this.gridView1.DoubleClick += new System.EventHandler(this.gridView1_DoubleClick);
         }
-        // SalesInvoicesForm.cs içinde olması gereken örnek metot
         private void gridView1_DoubleClick(object sender, EventArgs e)
         {
             DXMouseEventArgs args = e as DXMouseEventArgs;
             GridView view = sender as GridView;
             GridHitInfo hitInfo = view.CalcHitInfo(args.Location);
-
             if (hitInfo.InRow || hitInfo.InRowCell)
             {
-                // 1. LogicalRef'i al
-                var logicalRef = view.GetFocusedRowCellValue("LOGICALREF")?.ToString();
-
+                string logicalRef = view.GetFocusedRowCellValue("LOGICALREF")?.ToString();
                 if (!string.IsNullOrEmpty(logicalRef))
                 {
-                    // 2. Yeni formu aç (Bu constructor'ı kullandık)
                     SalesDetailsForm detailForm = new SalesDetailsForm(
                         logicalRef,
                         _userName,
                         _firmaNr,
-                        _periodNo // Ana formdaki field'ları kullanarak bilgileri gönder
+                        _periodNo 
                     );
                     detailForm.ShowDialog();
                 }
@@ -55,12 +50,10 @@ namespace UTSLogo.Forms
         {
             await LoadSalesInvoicesAsync();
         }
-
         private async void refreshToolStripMenuItem_Click(object sender, EventArgs e)
         {
             await LoadSalesInvoicesAsync();
         }
-
         private async void UTSToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (gridView1.GetFocusedRow() == null)
@@ -68,9 +61,9 @@ namespace UTSLogo.Forms
                 XtraMessageBox.Show("Lütfen bir fatura seçiniz.", "Uyarı", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
-            var logicalRef = gridView1.GetFocusedRowCellValue("LOGICALREF")?.ToString();
-            var faturaNo = gridView1.GetFocusedRowCellValue("Fatura No")?.ToString();
-            var faturaTarihi = gridView1.GetFocusedRowCellValue("Fatura Tarihi")?.ToString();
+            string logicalRef = gridView1.GetFocusedRowCellValue("LOGICALREF")?.ToString();
+            string faturaNo = gridView1.GetFocusedRowCellValue("Fatura No")?.ToString();
+            string faturaTarihi = gridView1.GetFocusedRowCellValue("Fatura Tarihi")?.ToString();
             if (string.IsNullOrEmpty(logicalRef)) return;
             string utsDurumu = gridView1.GetFocusedRowCellValue("UTS Durumu")?.ToString();
             if (utsDurumu == "✓ Çekildi")
@@ -80,7 +73,6 @@ namespace UTSLogo.Forms
                     "Uyarı",
                     MessageBoxButtons.YesNo,
                     MessageBoxIcon.Question);
-
                 if (result != DialogResult.Yes)
                     return;
             }
@@ -95,7 +87,6 @@ namespace UTSLogo.Forms
                 string period = _periodNo.PadLeft(2, '0');
                 DataTable utsKayitlar = await GetUtsCekilmisFaturalarAsync();
                 HashSet<string> cekilmisFaturalar = new HashSet<string>();
-
                 if (utsKayitlar != null && utsKayitlar.Rows.Count > 0)
                 {
                     foreach (DataRow row in utsKayitlar.Rows)
@@ -105,28 +96,22 @@ namespace UTSLogo.Forms
                             cekilmisFaturalar.Add(invRef);
                     }
                 }
-
                 string query = $@"
                   SELECT  
-    -- Fatura Tipini Belirleme
     CASE 
         WHEN INV.EINVOICE = 1 THEN 'E-Fatura'
         WHEN INV.EINVOICE = 2 THEN 'E-Arşiv'
         ELSE 'Diğer'
     END AS [FaturaTipi],
-
-    -- Durum Alanını Belirleme (E-Fatura ve E-Arşiv için farklı mantık)
     CASE 
-        -- E-Arşiv Fatura (INV.EINVOICE = 2) için EAR.EARCHIVESTATUS'a göre durum
         WHEN INV.EINVOICE = 2 THEN
             CASE EAR.EARCHIVESTATUS
                 WHEN 0 THEN 'GİB Gönderilecek'
                 WHEN 1 THEN 'Onaylandı'
                 ELSE 'Bilinmiyor (E-Arşiv)'
             END
-        -- E-Fatura (INV.EINVOICE = 1) için INV.ESTATUS'a göre durum (Orijinal sorgudan INV.EINVOICE=1 durumunda ESTATUS kullanıldığı anlaşılıyor, ancak burada ESTATUS yerine E-Fatura için genel EINVOICE durumları kullanıldı.)
         WHEN INV.EINVOICE = 1 THEN
-            CASE INV.ESTATUS -- Normalde ESTATUS kullanılmalı, ancak orijinal sorgunuzdaki CASE yapısı INV.EINVOICE'i kullanmış. E-Fatura için ESTATUS'ü tercih etmek daha doğrudur.
+            CASE INV.ESTATUS 
                 WHEN 0 THEN 'GİB''e Gönderilecek'
                 WHEN 1 THEN 'Onay Gönderildi'
                 WHEN 2 THEN 'Onaylandı'
@@ -166,25 +151,20 @@ WHERE
     AND INV.PROFILEID = 8    
     AND (INV.ESTATUS IN (0,1,2,3))
     AND (
-        (INV.EINVOICE = 1 AND INV.ESTATUS IN (0,1,2,3)) OR -- E-Fatura için ESTATUS kontrolü
-        (INV.EINVOICE = 2 AND EAR.EARCHIVESTATUS IN (0,1)) -- E-Arşiv için EAR.EARCHIVESTATUS kontrolü (Orijinalde 0,1 istenmişti, 2 de eklendi)
+        (INV.EINVOICE = 1 AND INV.ESTATUS IN (0,1,2,3)) OR 
+        (INV.EINVOICE = 2 AND EAR.EARCHIVESTATUS IN (0,1)) 
     )
 ORDER BY 
     INV.LOGICALREF DESC";
-
                 DataTable dt = await SQLCrud.GetDataTableAsync(query, null);
                 dt.Columns.Add("UTS Durumu", typeof(string));
                 foreach (DataRow row in dt.Rows)
                 {
                     string logicalRef = row["LOGICALREF"]?.ToString();
                     if (cekilmisFaturalar.Contains(logicalRef))
-                    {
                         row["UTS Durumu"] = "✓ Çekildi";
-                    }
                     else
-                    {
                         row["UTS Durumu"] = "Çekilmedi";
-                    }
                 }
                 gridControl1.DataSource = dt;
                 if (gridView1.Columns["LOGICALREF"] != null)
@@ -192,9 +172,7 @@ ORDER BY
                 if (gridView1.Columns["FaturaTarihiRaw"] != null)
                     gridView1.Columns["FaturaTarihiRaw"].Visible = false;
                 if (gridView1.Columns["UTS Durumu"] != null)
-                {
                     gridView1.Columns["UTS Durumu"].VisibleIndex = 0;
-                }
                 gridView1.BestFitColumns();
                 GridViewDesigner.CustomizeGrid(gridView1);
             }
@@ -311,14 +289,14 @@ ORDER BY
             if (successRows.Count > 0)
             {
                 resultMessage += "BAŞARILI SATIRLAR:\n";
-                foreach (var s in successRows)
+                foreach (string s in successRows)
                     resultMessage += $"  • {s}\n";
                 resultMessage += "\n";
             }
             if (errorMessages.Count > 0)
             {
                 resultMessage += "HATALAR:\n";
-                foreach (var e in errorMessages)
+                foreach (string e in errorMessages)
                     resultMessage += $"  • {e}\n";
             }
             MessageBoxIcon icon = failRows.Count == 0 ? MessageBoxIcon.Information : MessageBoxIcon.Warning;

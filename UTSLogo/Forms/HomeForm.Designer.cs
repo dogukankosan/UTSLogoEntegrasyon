@@ -2,9 +2,7 @@
 {
     partial class HomeForm
     {
-        /// <summary>
-        /// Required designer variable.
-        /// </summary>
+ 
         private System.ComponentModel.IContainer components = null;
 
         /// <summary>
@@ -204,6 +202,7 @@
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
+
             // 
             // popupMenu2
             // 
@@ -278,7 +277,7 @@
             this.IconOptions.Image = ((System.Drawing.Image)(resources.GetObject("HomeForm.IconOptions.Image")));
             this.Name = "HomeForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Mutlu Yazılım | UTS Aktarım | V1.0.0";
+            this.Text = "Mutlu Yazılım | UTS Aktarım | V1.0.1";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HomeForm_FormClosing);
             this.Load += new System.EventHandler(this.HomeForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.accordionControl1)).EndInit();

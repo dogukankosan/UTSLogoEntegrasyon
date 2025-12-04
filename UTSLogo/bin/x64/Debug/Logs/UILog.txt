@@ -1,3 +1,0 @@
-2025-11-30 11:10:52 | SQLite log hatası: database is locked
-database is locked | Orijinal mesaj: SQLite sorgu hatası: SQL logic error
-no such table: APISettings

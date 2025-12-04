@@ -47,6 +47,7 @@ namespace UTSLogo.Forms
                 XtraMessageBox.Show("Ayarlar yüklenirken hata oluştu:\n" + ex.Message,
                     "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+            txt_CustomerName.Focus();
         }
 
         private void SetFormLocked(bool locked)
@@ -63,7 +64,6 @@ namespace UTSLogo.Forms
         {
             if (!_isRegistered || string.IsNullOrEmpty(_customerGUID) || string.IsNullOrEmpty(_customerToken))
                 return;
-
             Cursor = Cursors.WaitCursor;
             try
             {

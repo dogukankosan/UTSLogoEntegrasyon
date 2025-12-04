@@ -13,7 +13,6 @@ namespace UTSLogo.Classes
         private static readonly HttpClient _httpClient = new HttpClient();
         private static readonly string BaseUrl = $"{ApiConstants.BaseApiUrl}UTS/";
         private static bool _headerSet = false;
-
         #region ==================== UTS SORGULAMA ====================
 
         internal static async Task<UTSQueryResponse> QueryAsync(string uno, string lno, string sn, int adet)
@@ -21,9 +20,7 @@ namespace UTSLogo.Classes
             try
             {
                 await EnsureHeaderSetAsync();
-
                 string customerGUID = await GetCustomerGUIDAsync();
-
                 if (string.IsNullOrEmpty(customerGUID))
                 {
                     return new UTSQueryResponse
@@ -32,8 +29,7 @@ namespace UTSLogo.Classes
                         Message = "Müşteri kaydı bulunamadı. Lütfen önce kayıt olun."
                     };
                 }
-
-                var request = new UTSQueryRequest
+                UTSQueryRequest request = new UTSQueryRequest
                 {
                     CustomerGUID = customerGUID,
                     UNO = uno,
@@ -41,18 +37,12 @@ namespace UTSLogo.Classes
                     SN = sn,
                     Adet = adet
                 };
-
                 string json = JsonConvert.SerializeObject(request);
-                var content = new StringContent(json, Encoding.UTF8, "application/json");
-
+                StringContent content = new StringContent(json, Encoding.UTF8, "application/json");
                 HttpResponseMessage response = await _httpClient.PostAsync($"{BaseUrl}Query", content);
                 string responseJson = await response.Content.ReadAsStringAsync();
-
-                // 🆕 Yanıtı logla (debug için)
                 await TextLog.LogToSQLiteAsync("UTSApiClient", $"API Yanıt: {responseJson}");
-
-                var result = JsonConvert.DeserializeObject<UTSQueryResponse>(responseJson);
-
+                UTSQueryResponse result = JsonConvert.DeserializeObject<UTSQueryResponse>(responseJson);
                 if (result == null)
                 {
                     await TextLog.LogToSQLiteAsync("UTSApiClient", $"Deserialize null döndü! Raw: {responseJson}");
@@ -62,7 +52,6 @@ namespace UTSLogo.Classes
                         Message = "API yanıtı işlenemedi."
                     };
                 }
-
                 return result;
             }
             catch (TaskCanceledException)
@@ -98,22 +87,16 @@ namespace UTSLogo.Classes
 
         #region ==================== HELPER METODLAR ====================
 
-        /// <summary>
-        /// X-Api-Key header'ını SQLite'dan çekip ayarlar (bir kez)
-        /// </summary>
         private static async Task EnsureHeaderSetAsync()
         {
             if (_headerSet) return;
-
             try
             {
                 string query = "SELECT CustomerToken FROM ClientSettings LIMIT 1";
                 DataTable dt = await SQLiteCrud.GetDataFromSQLiteAsync(query);
-
                 if (dt?.Rows.Count > 0)
                 {
                     string apiKey = dt.Rows[0]["CustomerToken"]?.ToString();
-
                     if (!string.IsNullOrEmpty(apiKey))
                     {
                         _httpClient.DefaultRequestHeaders.Remove("X-Api-Key");
@@ -127,20 +110,14 @@ namespace UTSLogo.Classes
                 await TextLog.LogToSQLiteAsync("UTSApiClient", $"Header ayarlama hatası: {ex.Message}");
             }
         }
-
-        /// <summary>
-        /// SQLite'dan sadece CustomerGUID çeker
-        /// </summary>
         private static async Task<string> GetCustomerGUIDAsync()
         {
             try
             {
                 string query = "SELECT CustomerGUID FROM ClientSettings LIMIT 1";
                 DataTable dt = await SQLiteCrud.GetDataFromSQLiteAsync(query);
-
                 if (dt?.Rows.Count > 0)
                     return dt.Rows[0]["CustomerGUID"]?.ToString();
-
                 return null;
             }
             catch (Exception ex)
@@ -149,7 +126,6 @@ namespace UTSLogo.Classes
                 return null;
             }
         }
-
         #endregion
     }
 }
