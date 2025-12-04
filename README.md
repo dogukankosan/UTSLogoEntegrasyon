@@ -1,5 +1,7 @@
 # 📦 UTSLogoEntegrasyon
 
+<img width="441" height="397" alt="UTS" src="https://github.com/user-attachments/assets/e0d4ec02-f626-4662-96aa-195fabd6d427" />
+
 ![License](https://img.shields.io/github/license/dogukankosan/UTSLogoEntegrasyon)
 ![Stars](https://img.shields.io/github/stars/dogukankosan/UTSLogoEntegrasyon)
 ![Issues](https://img.shields.io/github/issues/dogukankosan/UTSLogoEntegrasyon)
