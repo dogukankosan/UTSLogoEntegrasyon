@@ -1,0 +1,6 @@
+@UTSLogoWebAPI_HostAddress = http://localhost:5086
+
+GET {{UTSLogoWebAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

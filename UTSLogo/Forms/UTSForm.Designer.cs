@@ -31,6 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UTSForm));
             this.groupControl1 = new DevExpress.XtraEditors.GroupControl();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.chk_ISLot = new DevExpress.XtraEditors.CheckEdit();
             this.label4 = new System.Windows.Forms.Label();
             this.nmr_Count = new System.Windows.Forms.NumericUpDown();
             this.label3 = new System.Windows.Forms.Label();
@@ -43,6 +44,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.groupControl1)).BeginInit();
             this.groupControl1.SuspendLayout();
             this.panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chk_ISLot.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nmr_Count)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txt_CustomerName.Properties)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.txt_CustomerToken.Properties)).BeginInit();
@@ -63,6 +65,7 @@
             // panel1
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.panel1.Controls.Add(this.chk_ISLot);
             this.panel1.Controls.Add(this.label4);
             this.panel1.Controls.Add(this.nmr_Count);
             this.panel1.Controls.Add(this.label3);
@@ -77,6 +80,15 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(276, 524);
             this.panel1.TabIndex = 19;
+            // 
+            // chk_ISLot
+            // 
+            this.chk_ISLot.Location = new System.Drawing.Point(21, 248);
+            this.chk_ISLot.Name = "chk_ISLot";
+            this.chk_ISLot.Properties.Caption = "Lot Tablosu Var";
+            this.chk_ISLot.Size = new System.Drawing.Size(221, 20);
+            this.chk_ISLot.TabIndex = 4;
+            this.chk_ISLot.CheckedChanged += new System.EventHandler(this.chk_ISLot_CheckedChanged_1);
             // 
             // label4
             // 
@@ -173,7 +185,7 @@
             this.btn_Save.Location = new System.Drawing.Point(0, 475);
             this.btn_Save.Name = "btn_Save";
             this.btn_Save.Size = new System.Drawing.Size(274, 47);
-            this.btn_Save.TabIndex = 4;
+            this.btn_Save.TabIndex = 5;
             this.btn_Save.Text = "Kaydet";
             this.btn_Save.Click += new System.EventHandler(this.btn_Save_Click);
             // 
@@ -195,6 +207,7 @@
             this.groupControl1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chk_ISLot.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nmr_Count)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txt_CustomerName.Properties)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.txt_CustomerToken.Properties)).EndInit();
@@ -216,5 +229,6 @@
         private DevExpress.XtraEditors.TextEdit txt_CustomerName;
         private System.Windows.Forms.Label label2;
         private DevExpress.XtraEditors.TextEdit txt_CustomerToken;
+        private DevExpress.XtraEditors.CheckEdit chk_ISLot;
     }
 }

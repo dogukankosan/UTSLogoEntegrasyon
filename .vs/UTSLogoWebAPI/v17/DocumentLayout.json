@@ -1,52 +1,7 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|c:\\users\\dogukan\\source\\repos\\utslogowebapi\\utslogowebapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|solutionrelative:utslogowebapi\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|c:\\users\\dogukan\\source\\repos\\utslogowebapi\\utslogowebapi\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|solutionrelative:utslogowebapi\\appsettings.development.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|c:\\users\\dogukan\\source\\repos\\utslogowebapi\\utslogowebapi\\classes\\utsapiclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|solutionrelative:utslogowebapi\\classes\\utsapiclient.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|c:\\users\\dogukan\\source\\repos\\utslogowebapi\\utslogowebapi\\controllers\\utscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|solutionrelative:utslogowebapi\\controllers\\utscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|c:\\users\\dogukan\\source\\repos\\utslogowebapi\\utslogowebapi\\classes\\sqlcrud.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|solutionrelative:utslogowebapi\\classes\\sqlcrud.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|c:\\users\\dogukan\\source\\repos\\utslogowebapi\\utslogowebapi\\models\\urundetayi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|solutionrelative:utslogowebapi\\models\\urundetayi.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|c:\\users\\dogukan\\source\\repos\\utslogowebapi\\utslogowebapi\\models\\utsqueryrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|solutionrelative:utslogowebapi\\models\\utsqueryrequestmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|c:\\users\\dogukan\\source\\repos\\utslogowebapi\\utslogowebapi\\controllers\\customerscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|solutionrelative:utslogowebapi\\controllers\\customerscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|c:\\users\\dogukan\\source\\repos\\utslogowebapi\\utslogowebapi\\filters\\apikeyauthfilter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|solutionrelative:utslogowebapi\\filters\\apikeyauthfilter.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|c:\\users\\dogukan\\source\\repos\\utslogowebapi\\utslogowebapi\\models\\utstekilurunyanit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|solutionrelative:utslogowebapi\\models\\utstekilurunyanit.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|c:\\users\\dogukan\\source\\repos\\utslogowebapi\\utslogowebapi\\models\\tekilurunsorgurequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{270C4F2E-7084-4CCD-B276-910A6FD2D187}|UTSLogoWebAPI\\UTSLogoWebAPI.csproj|solutionrelative:utslogowebapi\\models\\tekilurunsorgurequest.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
@@ -54,21 +9,8 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": -1,
           "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "SQLCrud.cs",
-              "DocumentMoniker": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Classes\\SQLCrud.cs",
-              "RelativeDocumentMoniker": "UTSLogoWebAPI\\Classes\\SQLCrud.cs",
-              "ToolTip": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Classes\\SQLCrud.cs",
-              "RelativeToolTip": "UTSLogoWebAPI\\Classes\\SQLCrud.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAdAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-30T13:52:47.666Z",
-              "EditorCaption": ""
-            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
@@ -76,136 +18,6 @@
             {
               "$type": "Bookmark",
               "Name": "ST:128:0:{75188d03-9892-4ae2-abf1-207126247ce5}"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "UTSController.cs",
-              "DocumentMoniker": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Controllers\\UTSController.cs",
-              "RelativeDocumentMoniker": "UTSLogoWebAPI\\Controllers\\UTSController.cs",
-              "ToolTip": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Controllers\\UTSController.cs",
-              "RelativeToolTip": "UTSLogoWebAPI\\Controllers\\UTSController.cs",
-              "ViewState": "AgIAAMIAAAAAAAAAAAAAAOsAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-30T11:17:01.729Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "UrunDetayi.cs",
-              "DocumentMoniker": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Models\\UrunDetayi.cs",
-              "RelativeDocumentMoniker": "UTSLogoWebAPI\\Models\\UrunDetayi.cs",
-              "ToolTip": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Models\\UrunDetayi.cs",
-              "RelativeToolTip": "UTSLogoWebAPI\\Models\\UrunDetayi.cs",
-              "ViewState": "AgIAAA8AAAAAAAAAAAAcwDAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-30T11:34:55.16Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "UTSApiClient.cs",
-              "DocumentMoniker": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Classes\\UTSApiClient.cs",
-              "RelativeDocumentMoniker": "UTSLogoWebAPI\\Classes\\UTSApiClient.cs",
-              "ToolTip": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Classes\\UTSApiClient.cs",
-              "RelativeToolTip": "UTSLogoWebAPI\\Classes\\UTSApiClient.cs",
-              "ViewState": "AgIAADQAAAAAAAAAAADwv10AAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-30T11:33:16.401Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "appsettings.Development.json",
-              "DocumentMoniker": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\appsettings.Development.json",
-              "RelativeDocumentMoniker": "UTSLogoWebAPI\\appsettings.Development.json",
-              "ToolTip": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\appsettings.Development.json",
-              "RelativeToolTip": "UTSLogoWebAPI\\appsettings.Development.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-11-30T13:33:21.876Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "appsettings.json",
-              "DocumentMoniker": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\appsettings.json",
-              "RelativeDocumentMoniker": "UTSLogoWebAPI\\appsettings.json",
-              "ToolTip": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\appsettings.json",
-              "RelativeToolTip": "UTSLogoWebAPI\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAXAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-11-30T13:33:22.701Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 6,
-              "Title": "UTSQueryRequestModel.cs",
-              "DocumentMoniker": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Models\\UTSQueryRequestModel.cs",
-              "RelativeDocumentMoniker": "UTSLogoWebAPI\\Models\\UTSQueryRequestModel.cs",
-              "ToolTip": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Models\\UTSQueryRequestModel.cs",
-              "RelativeToolTip": "UTSLogoWebAPI\\Models\\UTSQueryRequestModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAwAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-30T13:28:54.525Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "CustomersController.cs",
-              "DocumentMoniker": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Controllers\\CustomersController.cs",
-              "RelativeDocumentMoniker": "UTSLogoWebAPI\\Controllers\\CustomersController.cs",
-              "ToolTip": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Controllers\\CustomersController.cs",
-              "RelativeToolTip": "UTSLogoWebAPI\\Controllers\\CustomersController.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAYwAcBAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-30T10:29:57.432Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 8,
-              "Title": "ApiKeyAuthFilter.cs",
-              "DocumentMoniker": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Filters\\ApiKeyAuthFilter.cs",
-              "RelativeDocumentMoniker": "UTSLogoWebAPI\\Filters\\ApiKeyAuthFilter.cs",
-              "ToolTip": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Filters\\ApiKeyAuthFilter.cs",
-              "RelativeToolTip": "UTSLogoWebAPI\\Filters\\ApiKeyAuthFilter.cs",
-              "ViewState": "AgIAAA0AAAAAAAAAAAA6wDYAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-30T12:29:20.901Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
-              "Title": "UtsTekilUrunYanit.cs",
-              "DocumentMoniker": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Models\\UtsTekilUrunYanit.cs",
-              "RelativeDocumentMoniker": "UTSLogoWebAPI\\Models\\UtsTekilUrunYanit.cs",
-              "ToolTip": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Models\\UtsTekilUrunYanit.cs",
-              "RelativeToolTip": "UTSLogoWebAPI\\Models\\UtsTekilUrunYanit.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-30T12:14:41.33Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 10,
-              "Title": "TekilUrunSorguRequest.cs",
-              "DocumentMoniker": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Models\\TekilUrunSorguRequest.cs",
-              "RelativeDocumentMoniker": "UTSLogoWebAPI\\Models\\TekilUrunSorguRequest.cs",
-              "ToolTip": "C:\\Users\\DOGUKAN\\source\\repos\\UTSLogoWebAPI\\UTSLogoWebAPI\\Models\\TekilUrunSorguRequest.cs",
-              "RelativeToolTip": "UTSLogoWebAPI\\Models\\TekilUrunSorguRequest.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-11-30T11:34:49.116Z",
-              "EditorCaption": ""
             }
           ]
         }

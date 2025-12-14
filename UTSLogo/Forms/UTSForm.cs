@@ -21,7 +21,7 @@ namespace UTSLogo.Forms
         {
             try
             {
-                string query = "SELECT CustomerGUID, CustomerToken FROM ClientSettings LIMIT 1";
+                string query = "SELECT CustomerGUID, CustomerToken, IsLot FROM ClientSettings LIMIT 1";
                 DataTable dt = await SQLiteCrud.GetDataFromSQLiteAsync(query);
                 if (dt?.Rows.Count > 0)
                 {
@@ -29,6 +29,7 @@ namespace UTSLogo.Forms
                     _customerGUID = dt.Rows[0]["CustomerGUID"].ToString();
                     string encryptedToken = dt.Rows[0]["CustomerToken"].ToString();
                     _customerToken = await EncryptionHelper.Decrypt(encryptedToken);
+                    chk_ISLot.Checked = Convert.ToInt32(dt.Rows[0]["IsLot"]) == 1;
                     SetFormLocked(true);
                     await RefreshFromAPIAsync();
                 }
@@ -91,7 +92,6 @@ namespace UTSLogo.Forms
         {
             btn_Save.Enabled = false;
             Cursor = Cursors.WaitCursor;
-
             try
             {
                 if (_isRegistered) await UpdateUTSTokenAsync();
@@ -123,8 +123,14 @@ namespace UTSLogo.Forms
                 return;
             }
             string encryptedToken = await EncryptionHelper.Encrypt(customerToken);
-            string insertQuery = "INSERT INTO ClientSettings (CustomerGUID, CustomerToken) VALUES (@guid, @token)";
-            Dictionary<string, object> parameters = new Dictionary<string, object> { { "@guid", apiResult.customerGUID }, { "@token", encryptedToken } };
+            string insertQuery = "INSERT INTO ClientSettings (CustomerGUID, CustomerToken, IsLot) VALUES (@guid, @token, @isLot)";
+            Dictionary<string, object> parameters = new Dictionary<string, object>
+            {
+                { "@guid", apiResult.customerGUID },
+                { "@token", encryptedToken },
+                { "@isLot", chk_ISLot.Checked ? 1 : 0 }
+            };
+
             var sqliteResult = await SQLiteCrud.InsertUpdateDeleteAsync(insertQuery, parameters);
             if (!sqliteResult.Success)
             {
@@ -158,6 +164,28 @@ namespace UTSLogo.Forms
         }
         #endregion
 
+        #region ==================== IsLot GÜNCELLEME ====================
+        private async Task UpdateIsLotAsync()
+        {
+            try
+            {
+                string updateQuery = "UPDATE ClientSettings SET IsLot = @isLot WHERE CustomerGUID = @guid";
+                Dictionary<string, object> parameters = new Dictionary<string, object>
+                {
+                    { "@isLot", chk_ISLot.Checked ? 1 : 0 },
+                    { "@guid", _customerGUID }
+                };
+                var result = await SQLiteCrud.InsertUpdateDeleteAsync(updateQuery, parameters);
+                if (!result.Success)
+                    await TextLog.LogToSQLiteAsync("UI", $"UpdateIsLotAsync: {result.ErrorMessage}");
+            }
+            catch (Exception ex)
+            {
+                await TextLog.LogToSQLiteAsync("UI", $"UpdateIsLotAsync hata: {ex.Message}");
+            }
+        }
+        #endregion
+
         #region ==================== YENİLE BUTONU ====================
         private async void btn_Refresh_Click(object sender, EventArgs e)
         {
@@ -169,5 +197,11 @@ namespace UTSLogo.Forms
             await RefreshFromAPIAsync();
         }
         #endregion
+
+        private async void chk_ISLot_CheckedChanged_1(object sender, EventArgs e)
+        {
+            if (!_isRegistered) return;
+            await UpdateIsLotAsync();
+        }
     }
 }

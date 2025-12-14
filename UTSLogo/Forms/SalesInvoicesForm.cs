@@ -17,7 +17,7 @@ namespace UTSLogo.Forms
         private string _userName;
         private string _firmaNr;
         private string _periodNo;
-
+        private bool _isLot; 
         public SalesInvoicesForm(string userName, string firmaNr, string periodNo)
         {
             InitializeComponent();
@@ -40,7 +40,7 @@ namespace UTSLogo.Forms
                         logicalRef,
                         _userName,
                         _firmaNr,
-                        _periodNo 
+                        _periodNo
                     );
                     detailForm.ShowDialog();
                 }
@@ -48,8 +48,33 @@ namespace UTSLogo.Forms
         }
         private async void SalesInvoicesForm_Load(object sender, EventArgs e)
         {
+            await LoadIsLotSettingAsync(); 
             await LoadSalesInvoicesAsync();
         }
+
+        #region ==================== IsLot AYARI YÜKLEME ====================
+        private async Task LoadIsLotSettingAsync()
+        {
+            try
+            {
+                string query = "SELECT IsLot FROM ClientSettings LIMIT 1";
+                DataTable dt = await SQLiteCrud.GetDataFromSQLiteAsync(query);
+                if (dt?.Rows.Count > 0)
+                {
+                    _isLot = Convert.ToInt32(dt.Rows[0]["IsLot"]) == 1;
+                }
+                else
+                {
+                    _isLot = false; 
+                }
+            }
+            catch
+            {
+                _isLot = false; 
+            }
+        }
+        #endregion
+
         private async void refreshToolStripMenuItem_Click(object sender, EventArgs e)
         {
             await LoadSalesInvoicesAsync();
@@ -148,7 +173,7 @@ LEFT JOIN
 WHERE 
     INV.GRPCODE = 2          
     AND INV.CANCELLED = 0     
-    AND INV.PROFILEID = 8    
+      
     AND (INV.ESTATUS IN (0,1,2,3))
     AND (
         (INV.EINVOICE = 1 AND INV.ESTATUS IN (0,1,2,3)) OR 
@@ -240,45 +265,64 @@ ORDER BY
                     await TextLog.LogToSQLiteAsync(_userName, msg);
                     continue;
                 }
-                if (string.IsNullOrWhiteSpace(lot))
+                if (_isLot)
                 {
-                    string msg = $"❌ Malzeme '{malzemeKodu}' için LOT/LINEEXP boş!";
-                    errorMessages.Add(msg);
-                    failRows.Add(lineRef);
-                    await TextLog.LogToSQLiteAsync(_userName, msg);
-                    continue;
-                }
-                if (amount <= 0)
-                {
-                    string msg = $"❌ Malzeme '{malzemeKodu}' için miktar geçersiz: {amount}";
-                    errorMessages.Add(msg);
-                    failRows.Add(lineRef);
-                    await TextLog.LogToSQLiteAsync(_userName, msg);
-                    continue;
-                }
-                string lotNo = lot.Contains("---")
-                    ? lot.Split(new[] { "---" }, StringSplitOptions.None)[0].Trim()
-                    : lot.Trim();
-                if (string.IsNullOrWhiteSpace(lotNo))
-                {
-                    string msg = $"❌ Malzeme '{malzemeKodu}' için LOT parse edilemedi.";
-                    errorMessages.Add(msg);
-                    failRows.Add(lineRef);
-                    await TextLog.LogToSQLiteAsync(_userName, msg);
-                    continue;
-                }
-                var result = await ProcessUtsQueryAsync(
-                    lineRef, invoiceRef, faturaNo, faturaTarihi,
-                    uno, lotNo, amount, malzemeKodu, malzemeAdi, _userName
-                );
-                if (result.Success)
-                {
-                    successRows.Add($"{malzemeKodu} (Satır: {lineRef})");
+                    var result = await ProcessUtsQueryWithLotAsync(
+                        lineRef, invoiceRef, faturaNo, faturaTarihi,
+                        uno, amount, malzemeKodu, malzemeAdi, _userName
+                    );
+                    if (result.Success)
+                    {
+                        successRows.Add($"{malzemeKodu} (Satır: {lineRef})");
+                    }
+                    else
+                    {
+                        failRows.Add($"{malzemeKodu} (Satır: {lineRef})");
+                        errorMessages.Add(result.ErrorMessage);
+                    }
                 }
                 else
                 {
-                    failRows.Add($"{malzemeKodu} (Satır: {lineRef})");
-                    errorMessages.Add(result.ErrorMessage);
+                    if (string.IsNullOrWhiteSpace(lot))
+                    {
+                        string msg = $"❌ Malzeme '{malzemeKodu}' için LOT/LINEEXP boş!";
+                        errorMessages.Add(msg);
+                        failRows.Add(lineRef);
+                        await TextLog.LogToSQLiteAsync(_userName, msg);
+                        continue;
+                    }
+                    if (amount <= 0)
+                    {
+                        string msg = $"❌ Malzeme '{malzemeKodu}' için miktar geçersiz: {amount}";
+                        errorMessages.Add(msg);
+                        failRows.Add(lineRef);
+                        await TextLog.LogToSQLiteAsync(_userName, msg);
+                        continue;
+                    }
+                    string lotNo = lot.Contains("---")
+                        ? lot.Split(new[] { "---" }, StringSplitOptions.None)[0].Trim()
+                        : lot.Trim();
+                    if (string.IsNullOrWhiteSpace(lotNo))
+                    {
+                        string msg = $"❌ Malzeme '{malzemeKodu}' için LOT parse edilemedi.";
+                        errorMessages.Add(msg);
+                        failRows.Add(lineRef);
+                        await TextLog.LogToSQLiteAsync(_userName, msg);
+                        continue;
+                    }
+                    var result = await ProcessUtsQueryAsync(
+                        lineRef, invoiceRef, faturaNo, faturaTarihi,
+                        uno, lotNo, amount, malzemeKodu, malzemeAdi, _userName
+                    );
+                    if (result.Success)
+                    {
+                        successRows.Add($"{malzemeKodu} (Satır: {lineRef})");
+                    }
+                    else
+                    {
+                        failRows.Add($"{malzemeKodu} (Satır: {lineRef})");
+                        errorMessages.Add(result.ErrorMessage);
+                    }
                 }
             }
             string resultMessage = $"═══════════════════════════════════\n";
@@ -302,6 +346,102 @@ ORDER BY
             MessageBoxIcon icon = failRows.Count == 0 ? MessageBoxIcon.Information : MessageBoxIcon.Warning;
             XtraMessageBox.Show(resultMessage, "UTS İşlem Sonucu", MessageBoxButtons.OK, icon);
         }
+        #region ==================== IsLot = 1 İÇİN YENİ METOD ====================
+        private async Task<(bool Success, string ErrorMessage)> ProcessUtsQueryWithLotAsync(
+            string lineRef, string invoiceRef, string faturaNo, string faturaTarihi,
+            string gtin, int amount,
+            string malzemeKodu, string malzemeAdi, string userName)
+        {
+            try
+            {
+                string firma = _firmaNr.PadLeft(3, '0');
+                string period = _periodNo.PadLeft(2, '0');
+                string lotSql = $@"
+                    SELECT 
+                        S.CODE AS LOT,
+                        SLT.LOGICALREF AS SLTRANS_REF
+                    FROM LG_{firma}_{period}_STLINE STL WITH (NOLOCK)
+                    INNER JOIN LG_{firma}_ITEMS I ON STL.STOCKREF = I.LOGICALREF
+                    LEFT JOIN LG_{firma}_{period}_SLTRANS SLT WITH (NOLOCK) ON STL.LOGICALREF = SLT.STTRANSREF
+                    LEFT JOIN LG_{firma}_{period}_SERILOTN S WITH (NOLOCK) ON SLT.SLREF = S.LOGICALREF
+                    WHERE STL.LINETYPE IN (0,1) AND STL.CANCELLED = 0 AND STL.LOGICALREF = @LineRef";
+                Dictionary<string, object> lotPrms = new Dictionary<string, object> { { "@LineRef", lineRef } };
+                DataTable lotDt = await SQLCrud.GetDataTableAsync(lotSql, lotPrms);
+                if (lotDt == null || lotDt.Rows.Count == 0)
+                {
+                    string msg = $"SERILOTN kaydı bulunamadı - {malzemeKodu}";
+                    await TextLog.LogToSQLiteAsync(userName, msg);
+                    return (false, msg);
+                }
+                string lotNo = lotDt.Rows[0]["LOT"]?.ToString();
+                string sltransRef = lotDt.Rows[0]["SLTRANS_REF"]?.ToString();
+                if (string.IsNullOrWhiteSpace(lotNo))
+                {
+                    string msg = $"LOT bilgisi boş - {malzemeKodu}";
+                    await TextLog.LogToSQLiteAsync(userName, msg);
+                    return (false, msg);
+                }
+                if (string.IsNullOrWhiteSpace(sltransRef))
+                {
+                    string msg = $"SLTRANS kaydı bulunamadı - {malzemeKodu}";
+                    await TextLog.LogToSQLiteAsync(userName, msg);
+                    return (false, msg);
+                }
+                UTSQueryResponse utsResult = await UTSApiClient.QueryAsync(gtin, lotNo, "0", amount);
+                if (utsResult == null)
+                {
+                    string msg = $"UTS yanıt null - {malzemeKodu}";
+                    await TextLog.LogToSQLiteAsync(userName, msg);
+                    return (false, msg);
+                }
+
+                if (!utsResult.Success)
+                {
+                    string msg = $"UTS Hata: {utsResult.Message} - {malzemeKodu}";
+                    await TextLog.LogToSQLiteAsync(userName, msg);
+                    return (false, msg);
+                }
+                if (utsResult.Urun == null)
+                {
+                    string msg = $"UTS'de ürün bulunamadı - {malzemeKodu}";
+                    await TextLog.LogToSQLiteAsync(userName, msg);
+                    return (false, msg);
+                }
+                UTSUrunResponse urun = utsResult.Urun;
+                string updateSql = $@"
+                    UPDATE LG_{firma}_{period}_SLTRANS 
+                    SET TIBBICIHAZURTDATE = @UretimTarihi 
+                    WHERE LOGICALREF = @SltransRef";
+                Dictionary<string, object> updatePrm = new Dictionary<string, object>
+                {
+                    { "@UretimTarihi", string.IsNullOrEmpty(urun.UretimTarihi) ? DBNull.Value : (object)urun.UretimTarihi },
+                    { "@SltransRef", sltransRef }
+                };
+                bool updateSuccess = await SQLCrud.ExecuteCrudAsync(updateSql, updatePrm);
+                if (!updateSuccess)
+                {
+                    string msg = $"SLTRANS güncellenemedi - {malzemeKodu}";
+                    await TextLog.LogToSQLiteAsync(userName, msg);
+                    return (false, msg);
+                }
+                await InsertUtsCekimKaydiAsync(
+                    lineRef, invoiceRef, faturaNo, faturaTarihi,
+                    gtin, lotNo, "", amount,
+                    urun.UretimTarihi, urun.SonKullanmaTarihi,
+                    urun.UrunTipi, urun.MarkaModel, urun.UtsStokMiktari,
+                    userName
+                );
+                return (true, null);
+            }
+            catch (Exception ex)
+            {
+                string msg = $"HATA: {ex.Message} - {malzemeKodu}";
+                await TextLog.LogToSQLiteAsync(userName, msg);
+                return (false, msg);
+            }
+        }
+        #endregion
+
         private async Task<(bool Success, string ErrorMessage)> ProcessUtsQueryAsync(
             string lineRef, string invoiceRef, string faturaNo, string faturaTarihi,
             string gtin, string lotNo, int amount,
@@ -329,9 +469,9 @@ ORDER BY
                     return (false, msg);
                 }
                 UTSUrunResponse urun = utsResult.Urun;
-                string newLineExp = (!string.IsNullOrEmpty(urun.UretimTarihi) && !string.IsNullOrEmpty(urun.SonKullanmaTarihi))
-                    ? $"{lotNo} --- {urun.UretimTarihi} // {urun.SonKullanmaTarihi}"
-                    : lotNo;
+                string uretimTarihiStr = string.IsNullOrEmpty(urun.UretimTarihi) ? "--" : urun.UretimTarihi;
+                string sonKullanmaStr = string.IsNullOrEmpty(urun.SonKullanmaTarihi) ? "--" : urun.SonKullanmaTarihi;
+                string newLineExp = $"{lotNo} --- {uretimTarihiStr} // {sonKullanmaStr}";
                 string firma = _firmaNr.PadLeft(3, '0');
                 string period = _periodNo.PadLeft(2, '0');
                 string updateSql = $@"

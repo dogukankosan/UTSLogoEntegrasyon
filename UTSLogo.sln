@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.36617.4
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UTSLogo", "UTSLogo\UTSLogo.csproj", "{F289D28C-E9D9-4098-BEA1-D75D750CBCB1}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "UTSLogoSetup", "UTSLogoSetup\UTSLogoSetup.vdproj", "{21203852-A617-4C39-9E64-DCB161107519}"
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "UTSLogoSetup", "UTSLogoSetup\UTSLogoSetup.vdproj", "{07975154-6BA5-4F23-A6E2-CC0C524F2660}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{F289D28C-E9D9-4098-BEA1-D75D750CBCB1}.Release|Any CPU.Build.0 = Release|Any CPU
 		{F289D28C-E9D9-4098-BEA1-D75D750CBCB1}.Release|x64.ActiveCfg = Release|x64
 		{F289D28C-E9D9-4098-BEA1-D75D750CBCB1}.Release|x64.Build.0 = Release|x64
-		{21203852-A617-4C39-9E64-DCB161107519}.Debug|Any CPU.ActiveCfg = Debug
-		{21203852-A617-4C39-9E64-DCB161107519}.Debug|x64.ActiveCfg = Debug
-		{21203852-A617-4C39-9E64-DCB161107519}.Release|Any CPU.ActiveCfg = Release
-		{21203852-A617-4C39-9E64-DCB161107519}.Release|x64.ActiveCfg = Release
+		{07975154-6BA5-4F23-A6E2-CC0C524F2660}.Debug|Any CPU.ActiveCfg = Debug
+		{07975154-6BA5-4F23-A6E2-CC0C524F2660}.Debug|x64.ActiveCfg = Debug
+		{07975154-6BA5-4F23-A6E2-CC0C524F2660}.Release|Any CPU.ActiveCfg = Release
+		{07975154-6BA5-4F23-A6E2-CC0C524F2660}.Release|x64.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
