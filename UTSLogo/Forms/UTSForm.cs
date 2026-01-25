@@ -13,7 +13,12 @@ namespace UTSLogo.Forms
         private string _customerGUID;
         private string _customerToken;
         private bool _isRegistered;
-        public UTSForm() => InitializeComponent();
+        private HomeForm _homeForm;
+        public UTSForm(HomeForm homeForm = null)
+        {
+            InitializeComponent();
+            _homeForm = homeForm;
+        }
         private async void UTSForm_Load(object sender, EventArgs e) => await LoadSettingsAsync();
 
         #region ==================== AYARLAR YÜKLEME ====================
@@ -21,7 +26,7 @@ namespace UTSLogo.Forms
         {
             try
             {
-                string query = "SELECT CustomerGUID, CustomerToken, IsLot FROM ClientSettings LIMIT 1";
+                string query = "SELECT CustomerGUID, CustomerToken, IsLot, IsEirs FROM ClientSettings LIMIT 1";
                 DataTable dt = await SQLiteCrud.GetDataFromSQLiteAsync(query);
                 if (dt?.Rows.Count > 0)
                 {
@@ -30,6 +35,7 @@ namespace UTSLogo.Forms
                     string encryptedToken = dt.Rows[0]["CustomerToken"].ToString();
                     _customerToken = await EncryptionHelper.Decrypt(encryptedToken);
                     chk_ISLot.Checked = Convert.ToInt32(dt.Rows[0]["IsLot"]) == 1;
+                    chk_Eirs.Checked = Convert.ToInt32(dt.Rows[0]["IsEirs"]) == 1; // ✅ YENİ
                     SetFormLocked(true);
                     await RefreshFromAPIAsync();
                 }
@@ -50,7 +56,6 @@ namespace UTSLogo.Forms
             }
             txt_CustomerName.Focus();
         }
-
         private void SetFormLocked(bool locked)
         {
             txt_CustomerName.Properties.ReadOnly = locked;
@@ -94,8 +99,12 @@ namespace UTSLogo.Forms
             Cursor = Cursors.WaitCursor;
             try
             {
-                if (_isRegistered) await UpdateUTSTokenAsync();
-                else await RegisterNewCustomerAsync();
+                if (_isRegistered)
+                    await UpdateUTSTokenAsync();
+                else
+                    await RegisterNewCustomerAsync();
+                // ✅ YENİ: Kayıt sonrası menüleri güncelle
+                await RefreshHomeMenusAsync();
             }
             finally
             {
@@ -123,14 +132,15 @@ namespace UTSLogo.Forms
                 return;
             }
             string encryptedToken = await EncryptionHelper.Encrypt(customerToken);
-            string insertQuery = "INSERT INTO ClientSettings (CustomerGUID, CustomerToken, IsLot) VALUES (@guid, @token, @isLot)";
+            // ✅ IsEirs parametresi eklendi
+            string insertQuery = "INSERT INTO ClientSettings (CustomerGUID, CustomerToken, IsLot, IsEirs) VALUES (@guid, @token, @isLot, @isEirs)";
             Dictionary<string, object> parameters = new Dictionary<string, object>
             {
                 { "@guid", apiResult.customerGUID },
                 { "@token", encryptedToken },
-                { "@isLot", chk_ISLot.Checked ? 1 : 0 }
+                { "@isLot", chk_ISLot.Checked ? 1 : 0 },
+                { "@isEirs", chk_Eirs.Checked ? 1 : 0 } // ✅ YENİ
             };
-
             var sqliteResult = await SQLiteCrud.InsertUpdateDeleteAsync(insertQuery, parameters);
             if (!sqliteResult.Success)
             {
@@ -171,17 +181,43 @@ namespace UTSLogo.Forms
             {
                 string updateQuery = "UPDATE ClientSettings SET IsLot = @isLot WHERE CustomerGUID = @guid";
                 Dictionary<string, object> parameters = new Dictionary<string, object>
-                {
-                    { "@isLot", chk_ISLot.Checked ? 1 : 0 },
-                    { "@guid", _customerGUID }
-                };
+            {
+                { "@isLot", chk_ISLot.Checked ? 1 : 0 },
+                { "@guid", _customerGUID }
+            };
                 var result = await SQLiteCrud.InsertUpdateDeleteAsync(updateQuery, parameters);
                 if (!result.Success)
                     await TextLog.LogToSQLiteAsync("UI", $"UpdateIsLotAsync: {result.ErrorMessage}");
+                // ✅ YENİ: Güncelleme sonrası menüleri yenile
+                await RefreshHomeMenusAsync();
             }
             catch (Exception ex)
             {
                 await TextLog.LogToSQLiteAsync("UI", $"UpdateIsLotAsync hata: {ex.Message}");
+            }
+        }
+        #endregion
+
+        #region ==================== IsEirs GÜNCELLEME ====================
+        private async Task UpdateIsEirsAsync()
+        {
+            try
+            {
+                string updateQuery = "UPDATE ClientSettings SET IsEirs = @isEirs WHERE CustomerGUID = @guid";
+                Dictionary<string, object> parameters = new Dictionary<string, object>
+            {
+                { "@isEirs", chk_Eirs.Checked ? 1 : 0 },
+                { "@guid", _customerGUID }
+            };
+                var result = await SQLiteCrud.InsertUpdateDeleteAsync(updateQuery, parameters);
+                if (!result.Success)
+                    await TextLog.LogToSQLiteAsync("UI", $"UpdateIsEirsAsync: {result.ErrorMessage}");
+                // ✅ YENİ: Güncelleme sonrası menüleri yenile
+                await RefreshHomeMenusAsync();
+            }
+            catch (Exception ex)
+            {
+                await TextLog.LogToSQLiteAsync("UI", $"UpdateIsEirsAsync hata: {ex.Message}");
             }
         }
         #endregion
@@ -203,5 +239,19 @@ namespace UTSLogo.Forms
             if (!_isRegistered) return;
             await UpdateIsLotAsync();
         }
+        // ✅ YENİ EVENT HANDLER
+        private async void chk_Eirs_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!_isRegistered) return;
+            await UpdateIsEirsAsync();
+        }
+        #region ==================== HOME MENÜ YENİLEME ====================
+        // ✅ YENİ METOD
+        private async Task RefreshHomeMenusAsync()
+        {
+            if (_homeForm != null)
+                await _homeForm.RefreshClientSettings();
+        }
+        #endregion
     }
 }

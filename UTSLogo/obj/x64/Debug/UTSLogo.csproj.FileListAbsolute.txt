@@ -99,7 +99,6 @@ C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\de\DevExpress.Office
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\es\DevExpress.Office.v20.1.Core.resources.dll
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\ja\DevExpress.Office.v20.1.Core.resources.dll
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\bin\x64\Debug\ru\DevExpress.Office.v20.1.Core.resources.dll
-C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.csprojAssemblyReference.cache
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.ErrorListForm.resources
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.FormCompanyChoose.resources
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.HomeForm.resources
@@ -116,3 +115,6 @@ C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.csproj.CoreC
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.csproj.CopyComplete
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.exe
 C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.pdb
+C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.SalesTruckForm.resources
+C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.csprojAssemblyReference.cache
+C:\Users\DOGUKAN\source\repos\UTSLogo\UTSLogo\obj\x64\Debug\UTSLogo.Forms.SalesTruckDetailsForm.resources

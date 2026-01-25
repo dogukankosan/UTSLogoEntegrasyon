@@ -19,7 +19,10 @@ namespace UTSLogo.Forms
         public string userName = "";
         public string firmaNr = "";
         public string periodNo = "";
-        public bool isAdmin = false; 
+        public bool isAdmin = false;
+        // ✅ YENİ ALANLAR
+        private bool _isLot = false;
+        private bool _isEirs = false;
         internal void OpenFormInContainer(Form form)
         {
             if (form == null) return;
@@ -45,6 +48,10 @@ namespace UTSLogo.Forms
             DevExpress.UserSkins.BonusSkins.Register();
             DevExpress.Skins.SkinManager.EnableFormSkins();
             await LoadUserThemeAsync();
+            // ✅ YENİ: IsLot ve IsEirs ayarlarını yükle
+            await LoadClientSettingsAsync();
+            // ✅ YENİ: Menü görünürlüklerini ayarla
+            ConfigureMenuVisibility();
             accordionControlElement1.Visible = isAdmin;
         }
         private void UpdateUserInfoDisplay()
@@ -82,6 +89,73 @@ namespace UTSLogo.Forms
                 await TextLog.LogToSQLiteAsync(userName, "Tema yükleme hatası: " + ex.ToString());
             }
         }
+
+        #region ==================== CLIENT SETTINGS YÜKLEME ====================
+        private async Task LoadClientSettingsAsync()
+        {
+            try
+            {
+                string query = "SELECT IsLot, IsEirs FROM ClientSettings LIMIT 1";
+                DataTable dt = await SQLiteCrud.GetDataFromSQLiteAsync(query);
+                if (dt?.Rows.Count > 0)
+                {
+                    _isLot = Convert.ToInt32(dt.Rows[0]["IsLot"]) == 1;
+                    _isEirs = Convert.ToInt32(dt.Rows[0]["IsEirs"]) == 1;
+                }
+                else
+                {
+                    _isLot = false;
+                    _isEirs = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                await TextLog.LogToSQLiteAsync(userName, $"ClientSettings yükleme hatası: {ex.Message}");
+                _isLot = false;
+                _isEirs = false;
+            }
+        }
+        #endregion
+
+        #region ==================== PUBLIC MENÜ YENİLEME ====================
+        // ✅ YENİ: UTSForm'dan çağrılabilir public metod
+        public async Task RefreshClientSettings()
+        {
+            await LoadClientSettingsAsync();
+            ConfigureMenuVisibility();
+        }
+        #endregion
+
+        #region ==================== MENÜ GÖRÜNÜRLÜĞÜ AYARLAMA ====================
+        private void ConfigureMenuVisibility()
+        {
+            if (_isLot && _isEirs)
+            {
+                // SENARYO 1: Sadece İrsaliye
+                salesInvoicesControlElement2.Visible = false;
+                salesTruckControlElement3.Visible = true;
+            }
+            else if (_isLot && !_isEirs)
+            {
+                // SENARYO 2: Sadece Fatura
+                salesInvoicesControlElement2.Visible = true;
+                salesTruckControlElement3.Visible = false;
+            }
+            else if (!_isLot && !_isEirs)
+            {
+                // SENARYO 3: Sadece Fatura
+                salesInvoicesControlElement2.Visible = true;
+                salesTruckControlElement3.Visible = false;
+            }
+            else if (!_isLot && _isEirs)
+            {
+                // SENARYO 4: Hem Fatura hem İrsaliye
+                salesInvoicesControlElement2.Visible = true;
+                salesTruckControlElement3.Visible = true;
+            }
+        }
+        #endregion
+
         private async void Default_StyleChanged(object sender, EventArgs e)
         {
             try
@@ -124,10 +198,12 @@ namespace UTSLogo.Forms
             UpdateUserInfoDisplay();
         }
         private void sqlSettingsControlElement1_Click(object sender, EventArgs e) => OpenFormInContainer(new SQLConnectionSettingsForm());
-        private void invoicesControlElement2_Click(object sender, EventArgs e) { }
-        private void salesInvoicesControlElement2_Click(object sender, EventArgs e) { OpenFormInContainer(new SalesInvoicesForm(userName,firmaNr.PadLeft(3, '0'),periodNo.PadLeft(2, '0'))); }
+        private void salesInvoicesControlElement2_Click(object sender, EventArgs e)
+        {
+            OpenFormInContainer(new SalesInvoicesForm(userName, firmaNr.PadLeft(3, '0'), periodNo.PadLeft(2, '0')));
+        }
         private void usersControlElement2_Click_1(object sender, EventArgs e) => OpenFormInContainer(new UsersForm());
-        private void UTSControlElement3_Click(object sender, EventArgs e) => OpenFormInContainer(new UTSForm());
+        private void UTSControlElement3_Click(object sender, EventArgs e) => OpenFormInContainer(new UTSForm(this));
         private void allListErrorControlElement3_Click(object sender, EventArgs e)
         {
             OpenFormInContainer(new ErrorListForm());
@@ -136,6 +212,11 @@ namespace UTSLogo.Forms
         private void UsererrorListControlElement3_Click(object sender, EventArgs e)
         {
             OpenFormInContainer(new ErrorListForm(userName));
+        }
+        private void salesTruckControlElement3_Click(object sender, EventArgs e)
+        {
+            // ✅ DÜZELTİLDİ: Parametreler eklendi
+            OpenFormInContainer(new SalesTruckForm(userName, firmaNr.PadLeft(3, '0'), periodNo.PadLeft(2, '0')));
         }
     }
 }

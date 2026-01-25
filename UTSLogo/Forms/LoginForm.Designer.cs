@@ -75,6 +75,7 @@ namespace UTSLogo.Forms
             this.btn_Close.Appearance.Options.UseForeColor = true;
             this.btn_Close.ButtonStyle = DevExpress.XtraEditors.Controls.BorderStyles.NoBorder;
             this.btn_Close.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.btn_Close.DialogResult = System.Windows.Forms.DialogResult.Cancel;
             this.btn_Close.Location = new System.Drawing.Point(380, 5);
             this.btn_Close.Name = "btn_Close";
             this.btn_Close.Size = new System.Drawing.Size(35, 35);
@@ -203,13 +204,13 @@ namespace UTSLogo.Forms
             this.lbl_Version.Name = "lbl_Version";
             this.lbl_Version.Size = new System.Drawing.Size(146, 13);
             this.lbl_Version.TabIndex = 9;
-            this.lbl_Version.Text = "v1.0.1 | © 2025 Mutlu Yazılım";
+            this.lbl_Version.Text = "v1.1.0 | © 2026 Mutlu Yazılım";
             // 
             // pictureBox1
             // 
             this.pictureBox1.Cursor = System.Windows.Forms.Cursors.Hand;
             this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(90, 72);
+            this.pictureBox1.Location = new System.Drawing.Point(108, 68);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(213, 61);
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -220,6 +221,7 @@ namespace UTSLogo.Forms
             // LoginForm
             // 
             this.AcceptButton = this.btn_Login;
+            this.CancelButton = this.btn_Close;
             this.ClientSize = new System.Drawing.Size(420, 390);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.pnl_Header);

@@ -13,8 +13,8 @@ namespace UTSLogo.Classes
         private static readonly HttpClient _httpClient = new HttpClient();
         private static readonly string BaseUrl = $"{ApiConstants.BaseApiUrl}UTS/";
         private static bool _headerSet = false;
-        #region ==================== UTS SORGULAMA ====================
 
+        #region ==================== UTS SORGULAMA ====================
         internal static async Task<UTSQueryResponse> QueryAsync(string uno, string lno, string sn, int adet)
         {
             try
@@ -82,11 +82,9 @@ namespace UTSLogo.Classes
                 };
             }
         }
-
         #endregion
 
         #region ==================== HELPER METODLAR ====================
-
         private static async Task EnsureHeaderSetAsync()
         {
             if (_headerSet) return;
@@ -127,5 +125,6 @@ namespace UTSLogo.Classes
             }
         }
         #endregion
+
     }
 }

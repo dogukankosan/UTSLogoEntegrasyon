@@ -8,7 +8,6 @@ namespace UTSLogo.Classes
 {
     internal static class EncryptionHelper
     {
-
         private static readonly byte[] keyBytes = Encoding.UTF8.GetBytes("12345678901234567890123456789012");
         private static readonly byte[] ivBytes = Encoding.UTF8.GetBytes("1234567890123456");
         internal static async Task<string> Encrypt(string plainText)

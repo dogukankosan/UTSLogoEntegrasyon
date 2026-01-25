@@ -86,7 +86,7 @@ WHERE
     AND INVOICE.TRCODE IN (2,3,7,8,9,10,14)
     AND (STFICHE.BILLED=1 OR STFICHE.BILLED IS NULL)
 ORDER BY STLINE.LOGICALREF ASC";
-                var parameters = new Dictionary<string, object> { { "@LogicalRef", _logicalRef } };
+                Dictionary<string, object> parameters = new Dictionary<string, object> { { "@LogicalRef", _logicalRef } };
                 DataTable dtDetails = await SQLCrud.GetDataTableAsync(query, parameters);
                 if (dtDetails == null || dtDetails.Rows.Count == 0)
                 {
@@ -114,6 +114,11 @@ ORDER BY STLINE.LOGICALREF ASC";
                 XtraMessageBox.Show($"Fatura detayları yüklenemedi:\n{ex.Message}", "Hata", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 await TextLog.LogToSQLiteAsync(_userName, $"Fatura Detay Yükleme Hatası (Ref: {_logicalRef}): {ex.Message}");
             }
+        }
+        private void SalesDetailsForm_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Escape)
+                this.Close();
         }
     }
 }

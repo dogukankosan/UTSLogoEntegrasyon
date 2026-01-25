@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 namespace UTSLogo.Models
 {
     public class UtsTekilUrunYanit
-    {// SNC: Sorgulanan Ürün Kayıtları Listesi (Serial Number Content)
+    {
+        // SNC: Sorgulanan Ürün Kayıtları Listesi (Serial Number Content)
         [JsonProperty("SNC")]
         public List<UrunDetayi> UrunListesi { get; set; }
 

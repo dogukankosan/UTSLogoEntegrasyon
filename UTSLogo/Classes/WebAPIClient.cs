@@ -17,6 +17,7 @@ namespace UTSLogo.Classes
         {
             Timeout = TimeSpan.FromSeconds(15)
         };
+
         #region ==================== GENERIC HELPER ====================
         private static async Task<string> GetEncryptedTokenAsync(string apiToken)
         {

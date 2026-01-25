@@ -69,9 +69,9 @@ namespace UTSLogo.Forms
         }
         private void LoginForm_Load(object sender, EventArgs e)
         {
-            txt_UserName.Focus();
             txt_Password.Properties.PasswordChar = '*';
             SetupHoverEffects();
+            txt_UserName.Focus();
         }
         private void SetupHoverEffects()
         {

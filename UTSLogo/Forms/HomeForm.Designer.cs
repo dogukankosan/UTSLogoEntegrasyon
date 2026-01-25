@@ -42,6 +42,7 @@
             this.accordionControlSeparator2 = new DevExpress.XtraBars.Navigation.AccordionControlSeparator();
             this.invoicesControlElement2 = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             this.salesInvoicesControlElement2 = new DevExpress.XtraBars.Navigation.AccordionControlElement();
+            this.salesTruckControlElement3 = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             this.panelControl1 = new DevExpress.XtraEditors.PanelControl();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.popupMenu2 = new DevExpress.XtraBars.PopupMenu(this.components);
@@ -169,11 +170,11 @@
             // invoicesControlElement2
             // 
             this.invoicesControlElement2.Elements.AddRange(new DevExpress.XtraBars.Navigation.AccordionControlElement[] {
-            this.salesInvoicesControlElement2});
+            this.salesInvoicesControlElement2,
+            this.salesTruckControlElement3});
             this.invoicesControlElement2.Expanded = true;
             this.invoicesControlElement2.Name = "invoicesControlElement2";
-            this.invoicesControlElement2.Text = "Faturalar";
-            this.invoicesControlElement2.Click += new System.EventHandler(this.invoicesControlElement2_Click);
+            this.invoicesControlElement2.Text = "İşlemler";
             // 
             // salesInvoicesControlElement2
             // 
@@ -182,6 +183,14 @@
             this.salesInvoicesControlElement2.Style = DevExpress.XtraBars.Navigation.ElementStyle.Item;
             this.salesInvoicesControlElement2.Text = "Satış Faturaları";
             this.salesInvoicesControlElement2.Click += new System.EventHandler(this.salesInvoicesControlElement2_Click);
+            // 
+            // salesTruckControlElement3
+            // 
+            this.salesTruckControlElement3.ImageOptions.Image = ((System.Drawing.Image)(resources.GetObject("salesTruckControlElement3.ImageOptions.Image")));
+            this.salesTruckControlElement3.Name = "salesTruckControlElement3";
+            this.salesTruckControlElement3.Style = DevExpress.XtraBars.Navigation.ElementStyle.Item;
+            this.salesTruckControlElement3.Text = "Satış İrsaliyeleri";
+            this.salesTruckControlElement3.Click += new System.EventHandler(this.salesTruckControlElement3_Click);
             // 
             // panelControl1
             // 
@@ -202,7 +211,6 @@
             this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
-
             // 
             // popupMenu2
             // 
@@ -277,7 +285,7 @@
             this.IconOptions.Image = ((System.Drawing.Image)(resources.GetObject("HomeForm.IconOptions.Image")));
             this.Name = "HomeForm";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            this.Text = "Mutlu Yazılım | UTS Aktarım | V1.0.1";
+            this.Text = "Mutlu Yazılım | UTS Aktarım | V1.1.0";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.HomeForm_FormClosing);
             this.Load += new System.EventHandler(this.HomeForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.accordionControl1)).EndInit();
@@ -316,5 +324,6 @@
         private DevExpress.XtraBars.BarDockControl barDockControlLeft;
         private DevExpress.XtraBars.BarDockControl barDockControlRight;
         private DevExpress.XtraBars.Navigation.AccordionControlElement UTSControlElement3;
+        private DevExpress.XtraBars.Navigation.AccordionControlElement salesTruckControlElement3;
     }
 }

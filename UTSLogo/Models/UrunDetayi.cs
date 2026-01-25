@@ -3,23 +3,26 @@ using Newtonsoft.Json;
 
 namespace UTSLogo.Models 
 {
-
     public class UrunDetayi
     {
         [JsonProperty("UNO")]
         public string Uno { get; set; } // Ürün Numarası
+
         [JsonProperty("LNO")]
         public string Lno { get; set; } // Lot Numarası
+
         [JsonProperty("ADT")]
         public int Adet { get; set; } // ADT: Adet (Stok Miktarı)
        
         [JsonProperty("URT")]
         public string UretimTarihiString { get; set; } // URT: Üretim Tarihi (string)
+
         [JsonIgnore]
         public DateTime UretimTarihi => DateTime.ParseExact(UretimTarihiString, "yyyy-MM-dd", null);
 
         [JsonProperty("SKT")]
         public string SonKullanmaTarihiString { get; set; } // SKT: Son Kullanma Tarihi (string)
+
         [JsonIgnore]
         public DateTime SonKullanmaTarihi => DateTime.ParseExact(SonKullanmaTarihiString, "yyyy-MM-dd", null);
 

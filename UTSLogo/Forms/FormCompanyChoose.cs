@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using DevExpress.XtraEditors;
 using UTSLogo.Classes;
-
 namespace UTSLogo.Forms
 {
     public partial class FormCompanyChoose : XtraForm
